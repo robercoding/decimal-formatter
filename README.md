@@ -16,7 +16,6 @@ Perfect for financial apps, calculators, and any application that needs professi
 - 💰 **Currency Support** - Built-in prefix support for currency symbols
 - 🌎 **International Formats** - European, US, Swiss, and custom formats
 - ⚡ **Real-time Formatting** - Automatic formatting as users type
-- 🎯 **Type-safe Configuration** - Enum-based separators and settings
 - 🧩 **Modular Design** - Use core logic only or with UI components
 - 🔧 **Highly Configurable** - Decimal places, separators, max digits
 
@@ -57,7 +56,9 @@ The `value` parameter sets the initial display value. The component then manages
 ```kotlin  
 @Composable
 fun CurrencyInput() {
-    var amount by remember { mutableStateOf("") }
+    var amount by remember { mutableStateOf("123456") }
+    
+    val configuration = remember { DecimalFormatterConfiguration.european() }
 
     OutlinedDecimalTextField(
         value = amount,
@@ -68,8 +69,37 @@ fun CurrencyInput() {
             amount = processed.formatted
         },
         prefix = "€ ",
-        configuration = DecimalFormatterConfiguration.european(),
-        label = { Text("Amount") }
+        configuration = configuration,
+        label = { Text("Price") }
+    )
+}
+
+
+@Composable
+fun WeightInput() {
+    var amount by remember { mutableStateOf("123456") }
+
+    val configuration = remember { 
+        DecimalFormatterConfiguration(
+            decimalSeparator = DecimalSeparator.COMMA,
+            thousandSeparator = ThousandSeparator.DOT,
+            decimalPlaces = 3,
+            maxDigits = 10
+        ) 
+    }
+
+
+    OutlinedDecimalTextField(
+        value = amount,
+        onValueChange = { processed ->
+            // processed.raw // Access raw value: "123456"
+            // processed.formatted // Access formatted value: "123,456  
+            // processed.formattedWithPrefix // Access formatted value with prefix: "123,456"
+            amount = processed.formatted
+        },
+        prefix = null,
+        configuration = configuration,
+        label = { Text("Kilograms") }
     )
 }
 ```  
