@@ -91,6 +91,7 @@ fun OutlinedDecimalTextField(
             internalRawDigits = value.raw
             onValueChange(value)
         },
+        modifier = modifier,
         enabled = enabled,
         readOnly = readOnly,
         textStyle = textStyle,
