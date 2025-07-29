@@ -18,20 +18,23 @@ Perfect for financial apps, calculators, and any application that needs professi
 - ⚡ **Real-time Formatting** - Automatic formatting as users type
 - 🧩 **Modular Design** - Use core logic only or with UI components
 - 🔧 **Highly Configurable** - Decimal places, separators, max digits
+- 📊 **Structured Data** - Get raw digits, formatted display, and full formatted display
 
 ## 📦 Installation
 
 ### Core Module (Platform Agnostic)
 ```kotlin  
 dependencies {  
- implementation("dev.robercoding:decimal-formatter-core:0.0.1-alpha01")}  
+    implementation("dev.robercoding:decimal-formatter-core:0.0.1-alpha01")
+}  
 ```  
 
 ### Compose Module (UI Components)
 ```kotlin  
 dependencies {
     implementation("dev.robercoding:decimal-formatter-compose:0.0.1-alpha01")
-}// Note: This automatically includes the core module}  
+    // Note: This automatically includes the core module
+}  
 ```  
 
 ## 🚀 Quick Start
@@ -39,68 +42,95 @@ dependencies {
 ### Basic Usage (Core)
 
 ```kotlin   
-// Create a formatter  
+// Create a formatter
 val formatter = DecimalFormatter(DecimalFormatterConfiguration.european())  
   
 // Format numbers  
 val formatted = formatter.format("123456") // "1.234,56"  
   
-// Parse back to decimal value  
-val value = formatted.parseDecimalValue(2) // 1234.56  
+// Extract raw digits from any input
+val rawDigits = formatter.getRawDigits("€1.234,56") // "123456"
 ```  
 
 ### Compose UI Components
 
-The `value` parameter sets the initial display value. The component then manages its internal state automatically, formatting user input in real-time. Use `onValueChange` to receive the formatted results for your app logic.
+The new API uses `UiDecimalFormatter` for better encapsulation and `DecimalValue` for structured state management:
 
 ```kotlin  
 @Composable
 fun CurrencyInput() {
-    var amount by remember { mutableStateOf("123456") }
-    
-    val configuration = remember { DecimalFormatterConfiguration.european() }
+    // Create a UI formatter with prefix
+    val europeanFormatter = rememberUiDecimalFormatter(DecimalFormatterConfiguration.european(), prefix = "€")
+
+    // Use DecimalValue for structured state
+    var price by remember {
+        mutableStateOf(europeanFormatter.format("")) // Start with empty if needed, will format to "€0,00"
+    }
 
     OutlinedDecimalTextField(
-        value = amount,
-        onValueChange = { processed ->
-            // processed.raw // Access raw value: "123456"
-            // processed.formatted // Access formatted value: "1.234,56"  
-            // processed.formattedWithPrefix // Access formatted value with prefix: "€ 1.234,56"
-            amount = processed.formatted
-        },
-        prefix = "€ ",
-        configuration = configuration,
+        decimalValue = price,
+        onValueChange = { price = newValue },
+        decimalFormatter = europeanFormatter,
         label = { Text("Price") }
     )
 }
 
-
 @Composable
 fun WeightInput() {
-    var amount by remember { mutableStateOf("123456") }
-
-    val configuration = remember { 
-        DecimalFormatterConfiguration(
-            decimalSeparator = DecimalSeparator.COMMA,
-            thousandSeparator = ThousandSeparator.DOT,
-            decimalPlaces = 3,
-            maxDigits = 10
-        ) 
+    // Custom configuration without prefix
+    val decimalFormatter = remember {
+        UiDecimalFormatter(
+            decimalFormatter = DecimalFormatter(
+                DecimalFormatterConfiguration(
+                    decimalSeparator = DecimalSeparator.DOT,
+                    thousandSeparator = ThousandSeparator.COMMA,
+                    decimalPlaces = 3,
+                    maxDigits = 10
+                )
+            ),
+            prefix = null
+        )
     }
 
+    var weight by remember {
+        mutableStateOf(decimalFormatter.format("123456")) // Initialize with value, will format to "123,456"
+    }
 
     OutlinedDecimalTextField(
-        value = amount,
-        onValueChange = { processed ->
-            // processed.raw // Access raw value: "123456"
-            // processed.formatted // Access formatted value: "123,456  
-            // processed.formattedWithPrefix // Access formatted value with prefix: "123,456"
-            amount = processed.formatted
-        },
-        prefix = null,
-        configuration = configuration,
+        decimalValue = weight,
+        onValueChange = { weight = it },
+        decimalFormatter = decimalFormatter,
         label = { Text("Kilograms") }
     )
+}
+
+@Composable
+fun DynamicFormatterExample() {
+    var isEuropean by remember { mutableStateOf(false) }
+
+    val usFormatter = rememberUiDecimalFormatter(DecimalFormatterConfiguration.us(), prefix = "$")
+    val europeanFormatter = rememberUiDecimalFormatter(DecimalFormatterConfiguration.european(), prefix = "€")
+
+    var amount by remember { mutableStateOf(usFormatter.format("123456")) }
+
+    Column {
+        OutlinedDecimalTextField(
+            decimalValue = amount,
+            onValueChange = { amount = it },
+            decimalFormatter = if (isEuropean) europeanFormatter else usFormatter
+        )
+
+        Button(
+            onClick = {
+                isEuropean = !isEuropean
+                // Reformat existing data with new formatter
+                val newFormatter = if (isEuropean) europeanFormatter else usFormatter
+                amount = newFormatter.format(amount.rawDigits)
+            }
+        ) {
+            Text("Switch Format")
+        }
+    }
 }
 ```  
 
@@ -119,7 +149,30 @@ fun WeightInput() {
 | Component | Description |  
 |-----------|-------------|  
 | `OutlinedDecimalTextField` | Material 3 outlined text field |  
-| `BasicDecimalTextField` | Unstyled text field |    
+| `UiDecimalFormatter` | UI-layer formatter with prefix support |
+| `DecimalValue` | Structured data class for formatted values |
+
+## 🏗️ DecimalValue Structure
+
+The `DecimalValue` data class provides structured access to formatted data:
+
+```kotlin
+data class DecimalValue internal constructor(
+    val rawDigits: String,      // "123456" - pure digits for any calculation you need
+    val display: String,        // "1.234,56" - formatted without prefix  
+    val fullDisplay: String?    // "€1.234,56" - formatted with prefix. Nullable if you didn't provide a prefix
+)
+
+// Note: You can only create `DecimalValue` using `UiDecimalFormatter.format()` or `DecimalFormatter.format()` method.
+// Usage examples
+val value = decimalFormatter.format("123456")
+println(value.rawDigits)    // "123456"
+println(value.display)      // "1.234,56" -> Can vary depending on the type of formatter used
+println(value.fullDisplay)  // "€1.234,56" -> Can vary depending on the type of formatter used.
+
+// Use display for showing to users  
+Text(value.fullDisplay ?: value.display)
+```
 
 ## ⚙️ Configuration
 
@@ -141,10 +194,60 @@ DecimalFormatterConfiguration.plain()
 
 ### Custom Configuration
 
+Any configuration can be customized using `DecimalFormatterConfiguration`:
+
 ```kotlin  
 DecimalFormatterConfiguration(  
-  decimalSeparator = DecimalSeparator.COMMA, thousandSeparator = ThousandSeparator.SPACE, decimalPlaces = 3, maxDigits = 10
+    decimalSeparator = DecimalSeparator.COMMA,
+    thousandSeparator = ThousandSeparator.SPACE,
+    decimalPlaces = 3,
+    maxDigits = 10
 )  
+```
+
+## 🔧 Advanced Usage
+
+### Type Conversions
+```kotlin
+val formatter = UiDecimalFormatter(
+    DecimalFormatter(DecimalFormatterConfiguration.us()),
+    prefix = "$"
+)
+
+// All numeric types supported
+formatter.format("123456")  // String input
+formatter.format(123456)    // Int input  
+formatter.format(123456L)   // Long input
+formatter.format(1234.56f)  // Float input
+formatter.format(1234.56)   // Double input
+```
+
+### Input Validation & Cleaning
+```kotlin
+// The formatter automatically handles invalid input
+formatter.format("abc123def")  // Filters the letters
+formatter.format("$1,234.56")  // Extracts digits → "123456" → "1,234.56"
+formatter.format("000123")     // Removes leading zeros → "123" → "1.23"
+```
+
+## 🧪 Testing
+
+The library includes comprehensive test coverage for both unit and compose testing:
+
+```kotlin
+@Test
+fun formatterHandlesEuropeanFormatCorrectly() {
+    val formatter = UiDecimalFormatter(
+        DecimalFormatter(DecimalFormatterConfiguration.european()),
+        prefix = "€"
+    )
+    
+    val result = formatter.format("123456")
+    
+    assertEquals("123456", result.rawDigits)
+    assertEquals("1.234,56", result.display)  
+    assertEquals("€1.234,56", result.fullDisplay)
+}
 ```
 
 ## 🐛 Debug Logging
@@ -153,11 +256,11 @@ Enable debug logging to troubleshoot formatting issues:
 
 ```kotlin  
 class MyApplication : Application() {  
-  override fun onCreate() {  
-   super.onCreate()
-   DecimalFormatterDebugConfig.setDebugEnabled(true)
-  }
- }
+    override fun onCreate() {  
+        super.onCreate()
+        DecimalFormatterDebugConfig.setDebugEnabled(true)
+    }
+}
 ```  
 
 ## 🏗️ Architecture
@@ -169,29 +272,19 @@ This library is split into two modules:
 
 ```  
 decimal-formatter/  
-├── core/                          # Platform-agnostic formatting  
-│   ├── DecimalFormatter          # Main formatting class 
-│   ├── DecimalFormatterConfiguration # Configuration  
-└── compose/                      # Compose UI components  
- ├── OutlinedDecimalTextField  # Material text field 
- ├── BasicDecimalTextField     # Unstyled text field 
-```  
-
-**From Manual Formatting:**
-```kotlin  
-// Before: Manual string manipulation  
-fun formatCurrency(amount: String): String {
-    // Complex formatting logic...}  
-
-// After: Use DecimalFormatter  
-    val formatter = DecimalFormatter.us()
-    val formatted = formatter.format(amount)
-}
-```  
+├── core/                         # Platform-agnostic formatting  
+│   ├── DecimalFormatter         # Core formatting logic
+│   └── DecimalFormatterConfiguration # Formatting rules
+└── compose/                     # Compose UI components  
+    ├── DecimalTextField # Basic text field without any decorations
+    ├── OutlinedDecimalTextField # Material text field
+    ├── UiDecimalFormatter      # UI-layer formatter
+    └── DecimalValue           # Structured value object
+```
 
 ## 🤝 Contributing
 
-Contributions are welcome!
+Contributions are welcome! 
 
 ## 📄 License
 
@@ -202,7 +295,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.  
 You may obtain a copy of the License at  
   
- http://www.apache.org/licenses/LICENSE-2.0  
+    http://www.apache.org/licenses/LICENSE-2.0  
+    
 Unless required by applicable law or agreed to in writing, software  
 distributed under the License is distributed on an "AS IS" BASIS,  
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
