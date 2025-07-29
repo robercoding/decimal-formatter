@@ -16,11 +16,11 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.runComposeUiTest
 import dev.robercoding.decimal.formatter.compose.components.OutlinedDecimalTextField
-import dev.robercoding.decimal.formatter.compose.model.FormattedDecimalValue
+import dev.robercoding.decimal.formatter.compose.formatter.UiDecimalFormatter
+import dev.robercoding.decimal.formatter.core.DecimalFormatter
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 // Execute android test emulator: ./gradlew decimal-formatter-compose:connectedAndroidTest
 // Execute iOS test emulator: ./gradlew decimal-formatter-compose:iosSimulatorArm64Test
@@ -29,16 +29,17 @@ class OutlinedDecimalTextFieldTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun userSeesCorrectFullDisplayAndDeveloperGetsExpectedDataUs() = runComposeUiTest {
-        var currentValue by mutableStateOf("")
-        var decimalValueResult: FormattedDecimalValue? = null
+        val decimalFormatter = UiDecimalFormatter(
+            decimalFormatter = DecimalFormatter.DefaultFormatter,
+            prefix = "$"
+        )
+        var currentValue by mutableStateOf(decimalFormatter.format(""))
 
         setContent {
             OutlinedDecimalTextField(
-                value = currentValue,
+                decimalValue = currentValue,
                 onValueChange = { currentValue = it },
-                onDecimalValueChange = { decimalValueResult = it },
-                configuration = DecimalFormatterConfiguration.us(),
-                prefix = "$",
+                decimalFormatter = decimalFormatter,
                 modifier = Modifier.testTag("decimal_field")
             )
         }
@@ -46,33 +47,32 @@ class OutlinedDecimalTextFieldTest {
         onNodeWithTag("decimal_field").performTextInput("2999")
 
         waitUntil(timeoutMillis = 5000) {
-            decimalValueResult?.rawDigits == "2999"
+            currentValue.rawDigits == "2999"
         }
 
         // ✅ User sees prefix in display
         onNodeWithTag("decimal_field").assertTextEquals("$29.99")
 
         // ✅ Developer gets structured data
-        assertEquals("2999", currentValue)
-        assertNotNull(decimalValueResult)
-        assertEquals("2999", decimalValueResult.rawDigits)
-        assertEquals("29.99", decimalValueResult.display)
-        assertEquals("$29.99", decimalValueResult.fullDisplay)
+        assertEquals("2999", currentValue.rawDigits)
+        assertEquals("29.99", currentValue.display)
+        assertEquals("$29.99", currentValue.fullDisplay)
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun userSeesCorrectFullDisplayAndDeveloperGetsExpectedDataEuropean() = runComposeUiTest {
-        var currentValue by mutableStateOf("")
-        var decimalValueResult: FormattedDecimalValue? = null
+        val decimalFormatter = UiDecimalFormatter(
+            decimalFormatter = DecimalFormatter(DecimalFormatterConfiguration.european()),
+            prefix = "€"
+        )
+        var currentValue by mutableStateOf(decimalFormatter.format(""))
 
         setContent {
             OutlinedDecimalTextField(
-                value = currentValue,
+                decimalValue = currentValue,
                 onValueChange = { currentValue = it },
-                onDecimalValueChange = { decimalValueResult = it },
-                configuration = DecimalFormatterConfiguration.european(),
-                prefix = "€",
+                decimalFormatter = decimalFormatter,
                 modifier = Modifier.testTag("decimal_field")
             )
         }
@@ -80,45 +80,50 @@ class OutlinedDecimalTextFieldTest {
         onNodeWithTag("decimal_field").performTextInput("2999")
 
         waitUntil(timeoutMillis = 5000) {
-            decimalValueResult?.rawDigits == "2999"
+            currentValue.rawDigits == "2999"
         }
 
         // ✅ User sees prefix in display
         onNodeWithTag("decimal_field").assertTextEquals("€29,99")
 
         // ✅ Developer gets structured data
-        assertEquals("2999", currentValue) // Raw for state management
-        assertNotNull(decimalValueResult)
-        assertEquals("2999", decimalValueResult.rawDigits)
-        assertEquals("29,99", decimalValueResult.display)
-        assertEquals("€29,99", decimalValueResult.fullDisplay)
+        assertEquals("2999", currentValue.rawDigits)
+        assertEquals("29,99", currentValue.display)
+        assertEquals("€29,99", currentValue.fullDisplay)
     }
-
-    // ===== 2. DIFFERENT DECIMAL FORMATTER CONFIGURATIONS =====
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun userSeesCorrectFormattingForDifferentDecimalFormatterConfigurationOnSwitch() = runComposeUiTest {
         var isEuropean by mutableStateOf(false)
-        var currentValue by mutableStateOf("")
-        var decimalValueResult: FormattedDecimalValue? = null
+
+        val usFormatter = UiDecimalFormatter(
+            decimalFormatter = DecimalFormatter.DefaultFormatter,
+            prefix = null
+        )
+        val europeanFormatter = UiDecimalFormatter(
+            decimalFormatter = DecimalFormatter(DecimalFormatterConfiguration.european()),
+            prefix = null
+        )
+
+        var currentValue by mutableStateOf(usFormatter.format("123456"))
 
         setContent {
             Column {
                 OutlinedDecimalTextField(
-                    value = currentValue,
+                    decimalValue = currentValue,
                     onValueChange = { currentValue = it },
-                    onDecimalValueChange = { decimalValueResult = it },
-                    configuration = if (isEuropean) {
-                        DecimalFormatterConfiguration.european()
-                    } else {
-                        DecimalFormatterConfiguration.us()
-                    },
+                    decimalFormatter = if (isEuropean) europeanFormatter else usFormatter,
                     modifier = Modifier.testTag("decimal_field")
                 )
 
                 Button(
-                    onClick = { isEuropean = !isEuropean },
+                    onClick = {
+                        isEuropean = !isEuropean
+                        // Reformat existing data with new formatter
+                        val newFormatter = if (isEuropean) europeanFormatter else usFormatter
+                        currentValue = newFormatter.format(currentValue.rawDigits)
+                    },
                     modifier = Modifier.testTag("switch_locale")
                 ) {
                     Text("Switch Locale")
@@ -126,15 +131,9 @@ class OutlinedDecimalTextFieldTest {
             }
         }
 
-        // User types in US format
-        onNodeWithTag("decimal_field").performTextInput("123456")
-
-        waitUntil(timeoutMillis = 5000) {
-            decimalValueResult?.rawDigits == "123456"
-        }
-
-        onNodeWithTag("decimal_field").assertTextEquals("1,234.56") // US format
-        assertEquals("1,234.56", decimalValueResult!!.display)
+        // User sees initial US format
+        onNodeWithTag("decimal_field").assertTextEquals("1,234.56")
+        assertEquals("1,234.56", currentValue.display)
 
         // User switches to European format
         onNodeWithTag("switch_locale").performClick()
@@ -142,24 +141,24 @@ class OutlinedDecimalTextFieldTest {
 
         // Same raw data, different formatting
         onNodeWithTag("decimal_field").assertTextEquals("1.234,56") // European format
-        assertEquals("123456", currentValue) // Raw data unchanged
-        assertEquals("1.234,56", decimalValueResult!!.display) // Format changed
+        assertEquals("123456", currentValue.rawDigits) // Raw data unchanged
+        assertEquals("1.234,56", currentValue.display) // Format changed
     }
-
-    // ===== 3. PROGRESSIVE INPUT (User typing experience) =====
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun userSeesProgressiveFormattingWhileTyping() = runComposeUiTest {
-        var currentValue by mutableStateOf("")
-        var decimalValueResult: FormattedDecimalValue? = null
+        val decimalFormatter = UiDecimalFormatter(
+            decimalFormatter = DecimalFormatter.DefaultFormatter,
+            prefix = null
+        )
+        var currentValue by mutableStateOf(decimalFormatter.format(""))
 
         setContent {
             OutlinedDecimalTextField(
-                value = currentValue,
+                decimalValue = currentValue,
                 onValueChange = { currentValue = it },
-                onDecimalValueChange = { decimalValueResult = it },
-                configuration = DecimalFormatterConfiguration.us(),
+                decimalFormatter = decimalFormatter,
                 modifier = Modifier.testTag("decimal_field")
             )
         }
@@ -178,46 +177,45 @@ class OutlinedDecimalTextFieldTest {
             onNodeWithTag("decimal_field").performTextInput(input)
 
             waitUntil(timeoutMillis = 5000) {
-                decimalValueResult?.rawDigits == input
+                currentValue.rawDigits == input
             }
 
             // User sees progressive formatting
             onNodeWithTag("decimal_field").assertTextEquals(expectedDisplay)
 
             // Developer gets consistent raw data
-            assertEquals(input, currentValue)
-            assertEquals(input, decimalValueResult!!.rawDigits)
-            assertEquals(expectedDisplay, decimalValueResult!!.display)
+            assertEquals(input, currentValue.rawDigits)
+            assertEquals(expectedDisplay, currentValue.display)
         }
     }
-
-    // ===== 4. STATE SYNCHRONIZATION =====
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun componentSyncsStateChanges() = runComposeUiTest {
-        var currentValue by mutableStateOf("123")
-        var decimalValueResult: FormattedDecimalValue? = null
+        val decimalFormatter = UiDecimalFormatter(
+            decimalFormatter = DecimalFormatter.DefaultFormatter,
+            prefix = null
+        )
+        var currentValue by mutableStateOf(decimalFormatter.format("123"))
 
         setContent {
             Column {
                 OutlinedDecimalTextField(
-                    value = currentValue,
+                    decimalValue = currentValue,
                     onValueChange = { currentValue = it },
-                    onDecimalValueChange = { decimalValueResult = it },
-                    configuration = DecimalFormatterConfiguration.us(),
+                    decimalFormatter = decimalFormatter,
                     modifier = Modifier.testTag("decimal_field")
                 )
 
                 Button(
-                    onClick = { currentValue = "56789" },
+                    onClick = { currentValue = decimalFormatter.format("56789") },
                     modifier = Modifier.testTag("update_button")
                 ) {
                     Text("Update Value")
                 }
 
                 Button(
-                    onClick = { currentValue = "" },
+                    onClick = { currentValue = decimalFormatter.format("") },
                     modifier = Modifier.testTag("clear_button")
                 ) {
                     Text("Clear")
@@ -232,12 +230,12 @@ class OutlinedDecimalTextFieldTest {
         onNodeWithTag("update_button").performClick()
 
         waitUntil(timeoutMillis = 5000) {
-            decimalValueResult?.rawDigits == "56789"
+            currentValue.rawDigits == "56789"
         }
 
         // User sees updated formatted value
         onNodeWithTag("decimal_field").assertTextEquals("567.89")
-        assertEquals("56789", currentValue)
+        assertEquals("56789", currentValue.rawDigits)
 
         // Parent clears value
         onNodeWithTag("clear_button").performClick()
@@ -245,23 +243,23 @@ class OutlinedDecimalTextFieldTest {
 
         // User sees empty state
         onNodeWithTag("decimal_field").assertTextEquals("0.00")
-        assertEquals("", currentValue)
+        assertEquals("", currentValue.rawDigits)
     }
-
-    // ===== 5. EDGE CASES & INPUT VALIDATION =====
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun componentHandlesInvalidInputGracefully() = runComposeUiTest {
-        var currentValue by mutableStateOf("")
-        var decimalValueResult: FormattedDecimalValue? = null
+        val decimalFormatter = UiDecimalFormatter(
+            decimalFormatter = DecimalFormatter.DefaultFormatter,
+            prefix = null
+        )
+        var currentValue by mutableStateOf(decimalFormatter.format(""))
 
         setContent {
             OutlinedDecimalTextField(
-                value = currentValue,
+                decimalValue = currentValue,
                 onValueChange = { currentValue = it },
-                onDecimalValueChange = { decimalValueResult = it },
-                configuration = DecimalFormatterConfiguration.us(),
+                decimalFormatter = decimalFormatter,
                 modifier = Modifier.testTag("decimal_field")
             )
         }
@@ -276,19 +274,20 @@ class OutlinedDecimalTextFieldTest {
         testCases.forEach { (input, expected) ->
             val expectedRawDigits = expected.first
             val expectedDisplay = expected.second
+
             onNodeWithTag("decimal_field").performTextClearance()
             onNodeWithTag("decimal_field").performTextInput(input)
 
             waitUntil(timeoutMillis = 5000) {
-                decimalValueResult?.rawDigits == expected.first
+                currentValue.rawDigits == expectedRawDigits
             }
 
             // User sees clean formatted output
             onNodeWithTag("decimal_field").assertTextEquals(expectedDisplay)
 
             // Developer gets cleaned raw data
-            assertEquals(input, currentValue)
-            assertEquals(expectedRawDigits, decimalValueResult!!.rawDigits)
+            assertEquals(expectedRawDigits, currentValue.rawDigits)
+            assertEquals(expectedDisplay, currentValue.display)
         }
     }
 }
