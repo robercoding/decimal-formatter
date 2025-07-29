@@ -8,17 +8,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import dev.robercoding.decimal.formatter.compose.model.FormattedDecimalValue
+import dev.robercoding.decimal.formatter.compose.formatter.UiDecimalFormatter
+import dev.robercoding.decimal.formatter.compose.formatter.rememberUiDecimalFormatter
+import dev.robercoding.decimal.formatter.compose.model.DecimalValue
 import dev.robercoding.decimal.formatter.compose.transformation.default.DecimalVisualTransformation
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
-import dev.robercoding.decimal.formatter.core.DefaultConfiguration
 
 /**
  * A text field component for decimal number input with automatic formatting.
@@ -50,12 +49,10 @@ import dev.robercoding.decimal.formatter.core.DefaultConfiguration
  */
 @Composable
 fun OutlinedDecimalTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    onDecimalValueChange: (FormattedDecimalValue) -> Unit,
+    decimalValue: DecimalValue, // User manages the full state
+    onValueChange: (DecimalValue) -> Unit,
     modifier: Modifier = Modifier,
-    configuration: DecimalFormatterConfiguration = remember { DecimalFormatterConfiguration.Companion.DefaultConfiguration },
-    prefix: String? = null,
+    decimalFormatter: UiDecimalFormatter = rememberUiDecimalFormatter(DecimalFormatterConfiguration.DefaultConfiguration),
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
@@ -73,21 +70,13 @@ fun OutlinedDecimalTextField(
     shape: Shape = OutlinedTextFieldDefaults.shape,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
-    val decimalFormatter = rememberDecimalFormatter(configuration)
-    val internalValue by remember(value) { mutableStateOf(decimalFormatter.getRawDigits(value)) }
-    val transformation by remember(prefix, configuration) {
-        mutableStateOf(
-            value = DecimalVisualTransformation(
-                decimalFormatter = decimalFormatter,
-                prefix = prefix,
-                onDecimalValueChange = onDecimalValueChange
-            )
-        )
-    }
 
     OutlinedTextField(
-        value = internalValue,
-        onValueChange = onValueChange,
+        value = decimalValue.rawDigits,
+        onValueChange = {
+            val decimalValue = decimalFormatter.format(it)
+            onValueChange(decimalValue)
+        },
         modifier = modifier,
         enabled = enabled,
         readOnly = readOnly,
@@ -98,7 +87,7 @@ fun OutlinedDecimalTextField(
         trailingIcon = trailingIcon,
         supportingText = supportingText,
         isError = isError,
-        visualTransformation = transformation,
+        visualTransformation = DecimalVisualTransformation(decimalValue = decimalValue),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         singleLine = singleLine,

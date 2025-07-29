@@ -6,7 +6,12 @@ import dev.robercoding.decimal.formatter.utils.logMessage
 /**
  * A formatter for decimal numbers with configurable separators and decimal places.
  */
-public class DecimalFormatter(private val configuration: DecimalFormatterConfiguration) {
+data class DecimalFormatter(private val configuration: DecimalFormatterConfiguration) {
+
+    companion object {
+        public val DefaultFormatter: DecimalFormatter
+            get() = DecimalFormatter(DecimalFormatterConfiguration.us())
+    }
 
     /**
      * Formats raw digits into a decimal number with thousand separators.

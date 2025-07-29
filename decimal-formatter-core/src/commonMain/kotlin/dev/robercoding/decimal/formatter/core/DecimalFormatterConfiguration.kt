@@ -31,7 +31,10 @@ data class DecimalFormatterConfiguration(
         }
     }
 
-    companion object Companion {
+    companion object {
+        public val DefaultConfiguration
+            get() = DecimalFormatterConfiguration()
+
         /**
          * European format: 1.234,56 (dot for thousands, comma for decimals)
          */
@@ -69,6 +72,3 @@ data class DecimalFormatterConfiguration(
         )
     }
 }
-
-public val DecimalFormatterConfiguration.Companion.DefaultConfiguration
-    get() = DecimalFormatterConfiguration()

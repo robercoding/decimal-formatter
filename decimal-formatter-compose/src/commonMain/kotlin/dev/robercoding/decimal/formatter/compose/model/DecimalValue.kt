@@ -7,7 +7,7 @@ package dev.robercoding.decimal.formatter.compose.model
  * @property display The formatted decimal without prefix (e.g., "1.234,56" or "1'234.56" or "1,234.56")
  * @property fullDisplay The formatted decimal with optional prefix (e.g., "$1.234,56" or "CHF 1'234.56" or "USD 1,234.56")
  */
-data class FormattedDecimalValue(
+data class DecimalValue internal constructor(
     val rawDigits: String,
     val display: String,
     val fullDisplay: String?

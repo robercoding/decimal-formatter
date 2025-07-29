@@ -6,20 +6,18 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import dev.robercoding.decimal.formatter.compose.model.FormattedDecimalValue
+import dev.robercoding.decimal.formatter.compose.formatter.UiDecimalFormatter
+import dev.robercoding.decimal.formatter.compose.formatter.rememberUiDecimalFormatter
+import dev.robercoding.decimal.formatter.compose.model.DecimalValue
 import dev.robercoding.decimal.formatter.compose.transformation.default.DecimalVisualTransformation
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
-import dev.robercoding.decimal.formatter.core.DefaultConfiguration
 
 /**
  * A text field component for decimal number input with automatic formatting.
@@ -47,11 +45,10 @@ import dev.robercoding.decimal.formatter.core.DefaultConfiguration
  */
 @Composable
 fun DecimalTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    onDecimalValueChange: (FormattedDecimalValue) -> Unit = {},
+    value: DecimalValue,
+    onValueChange: (DecimalValue) -> Unit,
+    decimalFormatter: UiDecimalFormatter = rememberUiDecimalFormatter(DecimalFormatterConfiguration.DefaultConfiguration),
     modifier: Modifier = Modifier,
-    configuration: DecimalFormatterConfiguration = remember { DecimalFormatterConfiguration.Companion.DefaultConfiguration },
     prefix: String? = null,
     enabled: Boolean = true,
     readOnly: Boolean = false,
@@ -65,16 +62,12 @@ fun DecimalTextField(
     cursorBrush: Brush = SolidColor(Color.Black),
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit = { innerTextField -> innerTextField() }
 ) {
-    val decimalFormatter = rememberDecimalFormatter(configuration)
-    var internalValue by remember(value) { mutableStateOf(decimalFormatter.getRawDigits(value)) }
-
-    val transformation by remember(prefix, configuration) {
-        mutableStateOf(DecimalVisualTransformation(decimalFormatter, prefix, onDecimalValueChange))
-    }
-
     BasicTextField(
-        value = internalValue,
-        onValueChange = onValueChange,
+        value = value.rawDigits,
+        onValueChange = {
+            val decimalValue = decimalFormatter.format(it)
+            onValueChange(decimalValue)
+        },
         modifier = modifier,
         enabled = enabled,
         readOnly = readOnly,
@@ -84,7 +77,7 @@ fun DecimalTextField(
         singleLine = singleLine,
         maxLines = maxLines,
         minLines = minLines,
-        visualTransformation = transformation,
+        visualTransformation = DecimalVisualTransformation(decimalValue = value),
         interactionSource = interactionSource,
         cursorBrush = cursorBrush,
         decorationBox = decorationBox
