@@ -21,6 +21,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import dev.robercoding.decimal.formatter.compose.components.DecimalTextField
 import dev.robercoding.decimal.formatter.compose.components.OutlinedDecimalTextField
+import dev.robercoding.decimal.formatter.compose.formatter.UiDecimalFormatter
+import dev.robercoding.decimal.formatter.compose.formatter.rememberUiDecimalFormatter
+import dev.robercoding.decimal.formatter.compose.model.DecimalValue
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
 import dev.robercoding.decimal.formatter.utils.logMessage
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -29,37 +32,45 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 @Composable
 fun App() {
     Surface(
-        modifier = Modifier.fillMaxSize().systemBarsPadding()) {
+        modifier = Modifier.fillMaxSize().systemBarsPadding()
+    ) {
+        val decimalFormatterPrefix = rememberUiDecimalFormatter(DecimalFormatterConfiguration.european(), prefix = "€")
+        val decimalFormatter = rememberUiDecimalFormatter(DecimalFormatterConfiguration.european())
 
-        var currentAmountPrefix by remember { mutableStateOf("552423232323,64") }
-        var currentAmountWithoutPrefix by remember { mutableStateOf("552423232323,64") }
-        var currentAmountBasic by remember { mutableStateOf("552423232323,64") }
+        var outlinedAmountValuePrefix by remember { mutableStateOf(decimalFormatterPrefix.format(50524.02.toString())) }
+        var outlinedAmountValueWithoutPrefix by remember { mutableStateOf(decimalFormatter.format("552423232323,64")) }
+
+        var decimalValuePrefix by remember { mutableStateOf(decimalFormatterPrefix.format("552423232323,64")) }
+        var decimalValueWithoutPrefix by remember { mutableStateOf(decimalFormatter.format("552423232323,64")) }
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Outlined region
+            OutlinedDecimalTextFieldComposable(
+                currentAmount = outlinedAmountValuePrefix,
+                onValueChange = { decimalValue -> outlinedAmountValuePrefix = decimalValue },
+                decimalFormatter = decimalFormatterPrefix
+            )
+
+            OutlinedDecimalTextFieldComposable(
+                currentAmount = outlinedAmountValueWithoutPrefix,
+                onValueChange = { decimalValue -> outlinedAmountValueWithoutPrefix = decimalValue },
+                decimalFormatter = decimalFormatterPrefix
+            )
+
+            // No decor TextField region
             DecimalTextFieldComposable(
-                currentAmount = currentAmountPrefix,
-                prefix = "€ ",
-                onFormattedValueChange = { formattedValue ->
-                    currentAmountPrefix = formattedValue
-                }
+                currentAmount = decimalValuePrefix,
+                onFormattedValueChange = { decimalValue -> decimalValuePrefix = decimalValue },
+                decimalFormatter = decimalFormatterPrefix
             )
 
             DecimalTextFieldComposable(
-                currentAmount = currentAmountWithoutPrefix,
-                prefix = null,
-                onFormattedValueChange = { formattedValue ->
-                    currentAmountWithoutPrefix = formattedValue
-                }
-            )
-
-            BasicTextFieldComposable(
-                currentAmount = currentAmountBasic,
-                onFormattedValueChange = { formattedValue ->
-                    currentAmountBasic = formattedValue
-                }
+                currentAmount = decimalValueWithoutPrefix,
+                onFormattedValueChange = { decimalValue -> decimalValuePrefix = decimalValue },
+                decimalFormatter = decimalFormatterPrefix
             )
         }
 
@@ -67,38 +78,28 @@ fun App() {
 }
 
 @Composable
-fun DecimalTextFieldComposable(
-    currentAmount: String,
-    onFormattedValueChange: (String) -> Unit,
-    prefix: String?,
+fun OutlinedDecimalTextFieldComposable(
+    currentAmount: DecimalValue,
+    onValueChange: (DecimalValue) -> Unit,
+    decimalFormatter: UiDecimalFormatter
 ) {
-    val currentConfiguration = remember { DecimalFormatterConfiguration.european() }
-
     OutlinedDecimalTextField(
         modifier = Modifier,
-        value = currentAmount,
-        onValueChange = { value ->
-            onFormattedValueChange(value)
-        },
-        onDecimalValueChange = { formattedDecimalValue ->
-            logMessage("Display value: ${formattedDecimalValue.display}")
-            logMessage("Full Display value: ${formattedDecimalValue.display}")
-            logMessage("Raw Digits: ${formattedDecimalValue.rawDigits}")
-        },
-        prefix = prefix,
+        decimalValue = currentAmount,
+        onValueChange = onValueChange,
         label = { Text("Price (€)", style = MaterialTheme.typography.labelSmall) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         textStyle = MaterialTheme.typography.bodyLarge,
         shape = MaterialTheme.shapes.small,
         colors = OutlinedTextFieldDefaults.colors().copy(
-            focusedTextColor = if (currentAmount == "0,00") {
+            focusedTextColor = if (currentAmount.display == "0,00") {
                 logMessage("Using gray color for zero value")
                 Color.Gray
             } else {
                 logMessage("Using default color for non-zero value: $currentAmount")
                 MaterialTheme.colorScheme.onSurface
             },
-            unfocusedTextColor = if (currentAmount == "0,00") {
+            unfocusedTextColor = if (currentAmount.display == "0,00") {
                 logMessage("Using gray color for zero value")
                 Color.Gray
             } else {
@@ -106,32 +107,25 @@ fun DecimalTextFieldComposable(
                 MaterialTheme.colorScheme.onSurface
             }
         ),
-        configuration = currentConfiguration
-
+        decimalFormatter = decimalFormatter
     )
 }
 
 @Composable
-fun BasicTextFieldComposable(
-    currentAmount: String,
-    onFormattedValueChange: (String) -> Unit,
+fun DecimalTextFieldComposable(
+    currentAmount: DecimalValue,
+    onFormattedValueChange: (DecimalValue) -> Unit,
+    decimalFormatter: UiDecimalFormatter,
 ) {
-    val currentConfiguration = remember { DecimalFormatterConfiguration.us() }
-
     DecimalTextField(
         modifier = Modifier,
         value = currentAmount,
         onValueChange = { value ->
             onFormattedValueChange(value)
         },
-        onDecimalValueChange = { formattedDecimalValue ->
-            logMessage("Display value: ${formattedDecimalValue.display}")
-            logMessage("Full Display value: ${formattedDecimalValue.display}")
-            logMessage("Raw Digits: ${formattedDecimalValue.rawDigits}")
-        },
         prefix = "$",
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         textStyle = MaterialTheme.typography.headlineLarge,
-        configuration = currentConfiguration
+        decimalFormatter = decimalFormatter
     )
 }
