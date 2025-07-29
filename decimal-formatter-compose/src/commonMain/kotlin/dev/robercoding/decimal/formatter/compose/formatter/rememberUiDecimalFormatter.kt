@@ -6,7 +6,7 @@ import dev.robercoding.decimal.formatter.core.DecimalFormatter
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
 
 @Composable
-fun rememberUiDecimalFormatter(configuration: DecimalFormatterConfiguration, prefix: String? = null): UiDecimalFormatter {
+fun rememberUiDecimalFormatter(configuration: DecimalFormatterConfiguration = DecimalFormatterConfiguration.DefaultConfiguration, prefix: String? = null): UiDecimalFormatter {
     val decimalFormatter = remember(configuration) { DecimalFormatter(configuration) }
     return remember(configuration) {
         UiDecimalFormatter(decimalFormatter, prefix)
