@@ -18,7 +18,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import dev.robercoding.decimal.formatter.compose.model.DecimalValueProcessed
 import dev.robercoding.decimal.formatter.compose.transformation.default.DecimalVisualTransformation
-import dev.robercoding.decimal.formatter.compose.utils.processDecimalValueChange
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
 import dev.robercoding.decimal.formatter.core.DefaultConfiguration
 
@@ -49,7 +48,8 @@ import dev.robercoding.decimal.formatter.core.DefaultConfiguration
 @Composable
 fun BasicDecimalTextField(
     value: String,
-    onValueChange: (DecimalValueProcessed) -> Unit,
+    onValueChange: (String) -> Unit,
+    onTransform: (DecimalValueProcessed) -> Unit = {},
     modifier: Modifier = Modifier,
     configuration: DecimalFormatterConfiguration = remember { DecimalFormatterConfiguration.Companion.DefaultConfiguration },
     prefix: String? = null,
@@ -66,23 +66,15 @@ fun BasicDecimalTextField(
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit = { innerTextField -> innerTextField() }
 ) {
     val decimalFormatter = rememberDecimalFormatter(configuration)
-    var internalRawDigits by remember { mutableStateOf(decimalFormatter.getRawDigits(value)) }
+    var internalValue by remember(value) { mutableStateOf(decimalFormatter.getRawDigits(value)) }
 
     val transformation by remember(prefix, configuration) {
-        mutableStateOf(DecimalVisualTransformation(decimalFormatter, prefix))
+        mutableStateOf(DecimalVisualTransformation(decimalFormatter, prefix, onTransform))
     }
 
     BasicTextField(
-        value = internalRawDigits,
-        onValueChange = { newValue ->
-            val value = processDecimalValueChange(
-                newValue = newValue,
-                prefix = prefix,
-                decimalFormatter = decimalFormatter,
-            )
-            internalRawDigits = value.raw
-            onValueChange(value)
-        },
+        value = internalValue,
+        onValueChange = onValueChange,
         modifier = modifier,
         enabled = enabled,
         readOnly = readOnly,

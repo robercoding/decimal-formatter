@@ -11,14 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import dev.robercoding.decimal.formatter.compose.model.DecimalValueProcessed
 import dev.robercoding.decimal.formatter.compose.transformation.default.DecimalVisualTransformation
-import dev.robercoding.decimal.formatter.compose.utils.processDecimalValueChange
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
 import dev.robercoding.decimal.formatter.core.DefaultConfiguration
 
@@ -53,7 +51,8 @@ import dev.robercoding.decimal.formatter.core.DefaultConfiguration
 @Composable
 fun OutlinedDecimalTextField(
     value: String,
-    onValueChange: (DecimalValueProcessed) -> Unit,
+    onValueChange: (String) -> Unit,
+    onTransform: (DecimalValueProcessed) -> Unit = {},
     modifier: Modifier = Modifier,
     configuration: DecimalFormatterConfiguration = remember { DecimalFormatterConfiguration.Companion.DefaultConfiguration },
     prefix: String? = null,
@@ -75,22 +74,14 @@ fun OutlinedDecimalTextField(
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     val decimalFormatter = rememberDecimalFormatter(configuration)
-    var internalRawDigits by remember { mutableStateOf(decimalFormatter.getRawDigits(value)) }
+    val internalValue by remember(value) { mutableStateOf(decimalFormatter.getRawDigits(value)) }
     val transformation by remember(prefix, configuration) {
-        mutableStateOf(DecimalVisualTransformation(decimalFormatter, prefix))
+        mutableStateOf(DecimalVisualTransformation(decimalFormatter, prefix, onTransform))
     }
 
     OutlinedTextField(
-        value = internalRawDigits,
-        onValueChange = { newValue ->
-            val value = processDecimalValueChange(
-                newValue = newValue,
-                prefix = prefix,
-                decimalFormatter = decimalFormatter,
-            )
-            internalRawDigits = value.raw
-            onValueChange(value)
-        },
+        value = internalValue,
+        onValueChange = onValueChange,
         modifier = modifier,
         enabled = enabled,
         readOnly = readOnly,

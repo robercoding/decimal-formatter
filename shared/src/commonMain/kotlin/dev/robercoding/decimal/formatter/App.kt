@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import dev.robercoding.decimal.formatter.compose.components.BasicDecimalTextField
 import dev.robercoding.decimal.formatter.compose.components.OutlinedDecimalTextField
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
@@ -30,32 +31,34 @@ fun App() {
     Surface(
         modifier = Modifier.fillMaxSize().systemBarsPadding()) {
 
-        var currentAmount by remember { mutableStateOf("552423232323,64") }
+        var currentAmountPrefix by remember { mutableStateOf("552423232323,64") }
+        var currentAmountWithoutPrefix by remember { mutableStateOf("552423232323,64") }
+        var currentAmountBasic by remember { mutableStateOf("552423232323,64") }
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             DecimalTextFieldComposable(
-                currentAmount = currentAmount,
+                currentAmount = currentAmountPrefix,
+                prefix = "€ ",
                 onFormattedValueChange = { formattedValue ->
-                    logMessage("Formatted value: $formattedValue")
-                    currentAmount = formattedValue
+                    currentAmountPrefix = formattedValue
                 }
             )
 
             DecimalTextFieldComposable(
-                currentAmount = currentAmount,
+                currentAmount = currentAmountWithoutPrefix,
+                prefix = null,
                 onFormattedValueChange = { formattedValue ->
-                    logMessage("Formatted value: $formattedValue")
-                    currentAmount = formattedValue
+                    currentAmountWithoutPrefix = formattedValue
                 }
             )
 
             BasicTextFieldComposable(
-                currentAmount = currentAmount,
+                currentAmount = currentAmountBasic,
                 onFormattedValueChange = { formattedValue ->
-                    currentAmount = formattedValue
+                    currentAmountBasic = formattedValue
                 }
             )
         }
@@ -67,37 +70,37 @@ fun App() {
 fun DecimalTextFieldComposable(
     currentAmount: String,
     onFormattedValueChange: (String) -> Unit,
+    prefix: String?,
 ) {
-    var formattedValue by remember { mutableStateOf(currentAmount) }
-
     val currentConfiguration = remember { DecimalFormatterConfiguration.european() }
 
     OutlinedDecimalTextField(
         modifier = Modifier,
         value = currentAmount,
-        onValueChange = { decimalValueProcessed ->
-            onFormattedValueChange(decimalValueProcessed.formatted)
-            formattedValue = "1"
-            logMessage("Raw value: ${decimalValueProcessed.raw}")
+        onValueChange = { value ->
+            onFormattedValueChange(value)
         },
-        prefix = "€",
+        onTransform = { decimalValueProcessed ->
+            logMessage("Transformed value: ${decimalValueProcessed.formatted}")
+        },
+        prefix = prefix,
         label = { Text("Price (€)", style = MaterialTheme.typography.labelSmall) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         textStyle = MaterialTheme.typography.bodyLarge,
         shape = MaterialTheme.shapes.small,
         colors = OutlinedTextFieldDefaults.colors().copy(
-            focusedTextColor = if (formattedValue == "0,00") {
+            focusedTextColor = if (currentAmount == "0,00") {
                 logMessage("Using gray color for zero value")
                 Color.Gray
             } else {
-                logMessage("Using default color for non-zero value: $formattedValue")
+                logMessage("Using default color for non-zero value: $currentAmount")
                 MaterialTheme.colorScheme.onSurface
             },
-            unfocusedTextColor = if (formattedValue == "0,00") {
+            unfocusedTextColor = if (currentAmount == "0,00") {
                 logMessage("Using gray color for zero value")
                 Color.Gray
             } else {
-                logMessage("Using default color for non-zero value: $formattedValue")
+                logMessage("Using default color for non-zero value: $currentAmount")
                 MaterialTheme.colorScheme.onSurface
             }
         ),
@@ -116,8 +119,8 @@ fun BasicTextFieldComposable(
     BasicDecimalTextField(
         modifier = Modifier,
         value = currentAmount,
-        onValueChange = { decimalValueProcessed ->
-            onFormattedValueChange(decimalValueProcessed.formatted)
+        onValueChange = { value ->
+            onFormattedValueChange(value)
         },
         prefix = "$",
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
