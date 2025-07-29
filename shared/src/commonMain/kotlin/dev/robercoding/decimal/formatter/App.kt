@@ -69,7 +69,7 @@ fun App() {
 
             DecimalTextFieldComposable(
                 currentAmount = decimalValueWithoutPrefix,
-                onFormattedValueChange = { decimalValue -> decimalValuePrefix = decimalValue },
+                onFormattedValueChange = { decimalValue -> decimalValueWithoutPrefix = decimalValue },
                 decimalFormatter = decimalFormatterPrefix
             )
         }
