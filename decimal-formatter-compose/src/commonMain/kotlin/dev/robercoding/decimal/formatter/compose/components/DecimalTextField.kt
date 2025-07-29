@@ -22,7 +22,7 @@ import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
 import dev.robercoding.decimal.formatter.core.DefaultConfiguration
 
 /**
- * A basic text field component for decimal number input with automatic formatting.
+ * A text field component for decimal number input with automatic formatting.
  *
  * This component provides the same decimal formatting functionality as OutlinedDecimalTextField
  * but without any styling - no borders, no outline, no background. Just plain text editing
@@ -46,7 +46,7 @@ import dev.robercoding.decimal.formatter.core.DefaultConfiguration
  * @param decorationBox Allows to add decorations around text field, such as icon, placeholder, helper messages or similar
  */
 @Composable
-fun BasicDecimalTextField(
+fun DecimalTextField(
     value: String,
     onValueChange: (String) -> Unit,
     onDecimalValueChange: (FormattedDecimalValue) -> Unit = {},

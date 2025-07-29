@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import dev.robercoding.decimal.formatter.compose.components.BasicDecimalTextField
+import dev.robercoding.decimal.formatter.compose.components.DecimalTextField
 import dev.robercoding.decimal.formatter.compose.components.OutlinedDecimalTextField
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
 import dev.robercoding.decimal.formatter.utils.logMessage
@@ -118,7 +118,7 @@ fun BasicTextFieldComposable(
 ) {
     val currentConfiguration = remember { DecimalFormatterConfiguration.us() }
 
-    BasicDecimalTextField(
+    DecimalTextField(
         modifier = Modifier,
         value = currentAmount,
         onValueChange = { value ->
