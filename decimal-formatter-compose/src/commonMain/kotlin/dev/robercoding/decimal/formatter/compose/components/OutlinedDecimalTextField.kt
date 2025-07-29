@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import dev.robercoding.decimal.formatter.compose.model.DecimalValueProcessed
+import dev.robercoding.decimal.formatter.compose.model.FormattedDecimalValue
 import dev.robercoding.decimal.formatter.compose.transformation.default.DecimalVisualTransformation
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
 import dev.robercoding.decimal.formatter.core.DefaultConfiguration
@@ -52,7 +52,7 @@ import dev.robercoding.decimal.formatter.core.DefaultConfiguration
 fun OutlinedDecimalTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    onTransform: (DecimalValueProcessed) -> Unit = {},
+    onDecimalValueChange: (FormattedDecimalValue) -> Unit,
     modifier: Modifier = Modifier,
     configuration: DecimalFormatterConfiguration = remember { DecimalFormatterConfiguration.Companion.DefaultConfiguration },
     prefix: String? = null,
@@ -76,7 +76,13 @@ fun OutlinedDecimalTextField(
     val decimalFormatter = rememberDecimalFormatter(configuration)
     val internalValue by remember(value) { mutableStateOf(decimalFormatter.getRawDigits(value)) }
     val transformation by remember(prefix, configuration) {
-        mutableStateOf(DecimalVisualTransformation(decimalFormatter, prefix, onTransform))
+        mutableStateOf(
+            value = DecimalVisualTransformation(
+                decimalFormatter = decimalFormatter,
+                prefix = prefix,
+                onDecimalValueChange = onDecimalValueChange
+            )
+        )
     }
 
     OutlinedTextField(

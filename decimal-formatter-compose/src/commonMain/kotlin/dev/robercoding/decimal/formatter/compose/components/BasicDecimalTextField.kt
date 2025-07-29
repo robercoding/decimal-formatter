@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import dev.robercoding.decimal.formatter.compose.model.DecimalValueProcessed
+import dev.robercoding.decimal.formatter.compose.model.FormattedDecimalValue
 import dev.robercoding.decimal.formatter.compose.transformation.default.DecimalVisualTransformation
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
 import dev.robercoding.decimal.formatter.core.DefaultConfiguration
@@ -49,7 +49,7 @@ import dev.robercoding.decimal.formatter.core.DefaultConfiguration
 fun BasicDecimalTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    onTransform: (DecimalValueProcessed) -> Unit = {},
+    onDecimalValueChange: (FormattedDecimalValue) -> Unit = {},
     modifier: Modifier = Modifier,
     configuration: DecimalFormatterConfiguration = remember { DecimalFormatterConfiguration.Companion.DefaultConfiguration },
     prefix: String? = null,
@@ -69,7 +69,7 @@ fun BasicDecimalTextField(
     var internalValue by remember(value) { mutableStateOf(decimalFormatter.getRawDigits(value)) }
 
     val transformation by remember(prefix, configuration) {
-        mutableStateOf(DecimalVisualTransformation(decimalFormatter, prefix, onTransform))
+        mutableStateOf(DecimalVisualTransformation(decimalFormatter, prefix, onDecimalValueChange))
     }
 
     BasicTextField(

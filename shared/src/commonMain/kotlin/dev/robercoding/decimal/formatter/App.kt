@@ -80,8 +80,10 @@ fun DecimalTextFieldComposable(
         onValueChange = { value ->
             onFormattedValueChange(value)
         },
-        onTransform = { decimalValueProcessed ->
-            logMessage("Transformed value: ${decimalValueProcessed.formatted}")
+        onDecimalValueChange = { formattedDecimalValue ->
+            logMessage("Display value: ${formattedDecimalValue.display}")
+            logMessage("Full Display value: ${formattedDecimalValue.display}")
+            logMessage("Raw Digits: ${formattedDecimalValue.rawDigits}")
         },
         prefix = prefix,
         label = { Text("Price (€)", style = MaterialTheme.typography.labelSmall) },
@@ -121,6 +123,11 @@ fun BasicTextFieldComposable(
         value = currentAmount,
         onValueChange = { value ->
             onFormattedValueChange(value)
+        },
+        onDecimalValueChange = { formattedDecimalValue ->
+            logMessage("Display value: ${formattedDecimalValue.display}")
+            logMessage("Full Display value: ${formattedDecimalValue.display}")
+            logMessage("Raw Digits: ${formattedDecimalValue.rawDigits}")
         },
         prefix = "$",
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

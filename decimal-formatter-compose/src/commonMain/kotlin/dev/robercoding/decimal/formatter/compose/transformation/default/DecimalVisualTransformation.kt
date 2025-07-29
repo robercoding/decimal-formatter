@@ -3,7 +3,7 @@ package dev.robercoding.decimal.formatter.compose.transformation.default
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import dev.robercoding.decimal.formatter.compose.model.DecimalValueProcessed
+import dev.robercoding.decimal.formatter.compose.model.FormattedDecimalValue
 import dev.robercoding.decimal.formatter.core.DecimalFormatter
 import dev.robercoding.decimal.formatter.utils.logMessage
 
@@ -11,11 +11,14 @@ import dev.robercoding.decimal.formatter.utils.logMessage
  * Visual transformation for decimal number formatting.
  *
  * This transformation formats the input text as a decimal number, optionally adding a prefix in your composable UI.
+ * It handles thousand separators and decimal places according to the provided [DecimalFormatter].
+ *
+ * It also provides a callback [onDecimalValueChange] that is invoked whenever the input text changes,
  */
 internal class DecimalVisualTransformation(
     private val decimalFormatter: DecimalFormatter,
     private val prefix: String? = null,
-    private val onTransformNewText: (DecimalValueProcessed) -> Unit
+    private val onDecimalValueChange: (FormattedDecimalValue) -> Unit
 ) : VisualTransformation {
 
     private var previousOriginalText: String? = null
@@ -36,7 +39,7 @@ internal class DecimalVisualTransformation(
                 formatted = formatted,
                 formattedWithPrefix = formattedWithPrefix
             )
-            onTransformNewText(decimalValue)
+            onDecimalValueChange(decimalValue)
         }
 
         val transformedText = formattedWithPrefix ?: formatted
@@ -50,17 +53,17 @@ internal class DecimalVisualTransformation(
         originalText: String,
         formatted: String,
         formattedWithPrefix: String? = null
-    ): DecimalValueProcessed {
+    ): FormattedDecimalValue {
         val raw = decimalFormatter.getRawDigits(originalText)
         logMessage(
             "Raw value: $raw \n" +
                 "Formatted value: $formattedWithPrefix (with prefix: $prefix) \n" +
                 "Formatted value without prefix: $formatted"
         )
-        val decimalValue = DecimalValueProcessed(
-            raw = raw,
-            formatted = formatted,
-            formattedWithPrefix = formattedWithPrefix
+        val decimalValue = FormattedDecimalValue(
+            rawDigits = raw,
+            display = formatted,
+            fullDisplay = formattedWithPrefix
         )
         return decimalValue
     }
