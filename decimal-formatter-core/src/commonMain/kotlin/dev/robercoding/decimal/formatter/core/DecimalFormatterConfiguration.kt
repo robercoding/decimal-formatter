@@ -16,7 +16,7 @@ data class DecimalFormatterConfiguration(
     val decimalSeparator: DecimalSeparator = DecimalSeparator.COMMA,
     val thousandSeparator: ThousandSeparator = ThousandSeparator.DOT,
     val decimalPlaces: Int = 2,
-    val maxDigits: Int = 20
+    val maxDigits: Int = 10
 ) {
     init {
         logMessage("Current configuration: $this")
