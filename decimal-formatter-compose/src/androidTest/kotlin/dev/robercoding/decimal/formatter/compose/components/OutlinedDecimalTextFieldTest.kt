@@ -1,4 +1,4 @@
-package dev.robercoding.decimal.formatter.compose
+package dev.robercoding.decimal.formatter.compose.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
@@ -15,7 +15,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.runComposeUiTest
-import dev.robercoding.decimal.formatter.compose.components.OutlinedDecimalTextField
 import dev.robercoding.decimal.formatter.compose.formatter.UiDecimalFormatter
 import dev.robercoding.decimal.formatter.core.DecimalFormatter
 import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
@@ -24,13 +23,13 @@ import kotlin.test.assertEquals
 
 // Execute android test emulator: ./gradlew decimal-formatter-compose:connectedAndroidTest
 // Execute iOS test emulator: ./gradlew decimal-formatter-compose:iosSimulatorArm64Test
-class DecimalTextFieldTest {
+class OutlinedDecimalTextFieldTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun userSeesCorrectFullDisplayAndDeveloperGetsExpectedDataUs() = runComposeUiTest {
         val decimalFormatter = UiDecimalFormatter(
-            decimalFormatter = DecimalFormatter(DecimalFormatterConfiguration.us()),
+            decimalFormatter = DecimalFormatter.DefaultFormatter,
             prefix = "$"
         )
         var currentValue by mutableStateOf(decimalFormatter.format(""))
@@ -92,15 +91,13 @@ class DecimalTextFieldTest {
         assertEquals("€29,99", currentValue.fullDisplay)
     }
 
-    // ===== 2. DIFFERENT DECIMAL FORMATTER CONFIGURATIONS =====
-
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun userSeesCorrectFormattingForDifferentDecimalFormatterConfigurationOnSwitch() = runComposeUiTest {
         var isEuropean by mutableStateOf(false)
 
         val usFormatter = UiDecimalFormatter(
-            decimalFormatter = DecimalFormatter(DecimalFormatterConfiguration.us()),
+            decimalFormatter = DecimalFormatter.DefaultFormatter,
             prefix = null
         )
         val europeanFormatter = UiDecimalFormatter(
@@ -147,13 +144,11 @@ class DecimalTextFieldTest {
         assertEquals("1.234,56", currentValue.display) // Format changed
     }
 
-    // ===== 3. PROGRESSIVE INPUT (User typing experience) =====
-
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun userSeesProgressiveFormattingWhileTyping() = runComposeUiTest {
         val decimalFormatter = UiDecimalFormatter(
-            decimalFormatter = DecimalFormatter(DecimalFormatterConfiguration.us()),
+            decimalFormatter = DecimalFormatter.DefaultFormatter,
             prefix = null
         )
         var currentValue by mutableStateOf(decimalFormatter.format(""))
@@ -193,13 +188,11 @@ class DecimalTextFieldTest {
         }
     }
 
-    // ===== 4. STATE SYNCHRONIZATION =====
-
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun componentSyncsStateChanges() = runComposeUiTest {
         val decimalFormatter = UiDecimalFormatter(
-            decimalFormatter = DecimalFormatter(DecimalFormatterConfiguration.us()),
+            decimalFormatter = DecimalFormatter.DefaultFormatter,
             prefix = null
         )
         var currentValue by mutableStateOf(decimalFormatter.format("123"))
@@ -252,13 +245,11 @@ class DecimalTextFieldTest {
         assertEquals("", currentValue.rawDigits)
     }
 
-    // ===== 5. EDGE CASES & INPUT VALIDATION =====
-
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun componentHandlesInvalidInputGracefully() = runComposeUiTest {
         val decimalFormatter = UiDecimalFormatter(
-            decimalFormatter = DecimalFormatter(DecimalFormatterConfiguration.us()),
+            decimalFormatter = DecimalFormatter.DefaultFormatter,
             prefix = null
         )
         var currentValue by mutableStateOf(decimalFormatter.format(""))
