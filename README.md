@@ -60,7 +60,7 @@ The new API uses `UiDecimalFormatter` for better encapsulation and `DecimalValue
 @Composable
 fun CurrencyInput() {
     // Create a UI formatter with prefix
-    val europeanFormatter = rememberUiDecimalFormatter(DecimalFormatterConfiguration.european(), prefix = "€")
+    val europeanFormatter = rememberUiDecimalFormatter(configuration = DecimalFormatterConfiguration.european(), prefix = "€")
 
     // Use DecimalValue for structured state
     var price by remember {
@@ -69,7 +69,7 @@ fun CurrencyInput() {
 
     OutlinedDecimalTextField(
         decimalValue = price,
-        onValueChange = { price = newValue },
+        onValueChange = { price = it },
         decimalFormatter = europeanFormatter,
         label = { Text("Price") }
     )
@@ -129,7 +129,7 @@ fun DynamicFormatterExample() {
             }
         ) {
             Text("Switch Format")
-        }
+        } 
     }
 }
 ```  
