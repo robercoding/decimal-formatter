@@ -11,7 +11,7 @@ kotlin {
 // which platforms this KMP module supports.
 // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
     androidLibrary {
-        namespace = "dev.robercoding.decimal-formatter"
+        namespace = "dev.robercoding.decimal.formatter"
         compileSdk = 35
         minSdk = 33
 
@@ -33,22 +33,26 @@ kotlin {
 // project can be found here:
 // https://developer.android.com/kotlin/multiplatform/migrate
     val xcfName = "shared"
+    val bundleId = "dev.robercoding.decimal.formatter.shared"
 
     iosX64 {
         binaries.framework {
             baseName = xcfName
+            binaryOption("bundleId", bundleId)
         }
     }
 
     iosArm64 {
         binaries.framework {
             baseName = xcfName
+            binaryOption("bundleId", bundleId)
         }
     }
 
     iosSimulatorArm64 {
         binaries.framework {
             baseName = xcfName
+            binaryOption("bundleId", bundleId)
         }
     }
 

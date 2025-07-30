@@ -4,10 +4,11 @@ kotlin = "2.1.20"
 android-minSdk = "24"
 android-compileSdk = "35"
 androidx-startup-runtime = "1.2.0"
-kotlinStdlib = "2.1.10"
+kotlinStdlib = "2.1.20"
 runner = "1.6.2"
 core = "1.6.1"
-junit = "1.2.1"
+androidx-junit = "1.2.1"
+junit = "4.13.2"
 coil = "3.1.0"
 ktor = "3.0.1"
 coroutines = "1.7.3"
@@ -24,9 +25,8 @@ detekt = "1.23.8"
 # gradle
 pluginAndroidGradle = "8.7.3"
 androidGradle = "8.7.3"
-compose-plugin = "1.7.0"
+compose-plugin = "1.8.2"
 coreKtx = "1.16.0"
-junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
 materialVersion = "1.12.0"
@@ -46,7 +46,7 @@ androidx-startup-runtime = { module = "androidx.startup:startup-runtime", versio
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-junit" }
 
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivityCompose" }
