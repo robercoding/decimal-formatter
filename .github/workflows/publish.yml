@@ -60,20 +60,11 @@ jobs:
       ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
 
     steps:
-      - name: Debug Signing Setup
-        run: |
-          echo "Environment variables:"
-          echo "Username set: $([[ -n "$ORG_GRADLE_PROJECT_mavenCentralUsername" ]] && echo "✅" || echo "❌")"
-          echo "Password set: $([[ -n "$ORG_GRADLE_PROJECT_mavenCentralPassword" ]] && echo "✅" || echo "❌")"
-          echo "Key ID set: $([[ -n "$ORG_GRADLE_PROJECT_signingInMemoryKeyId" ]] && echo "✅" || echo "❌")"
-          echo "Key Password set: $([[ -n "$ORG_GRADLE_PROJECT_signingInMemoryKeyPassword" ]] && echo "✅" || echo "❌")"
-          echo "GPG Key set: $([[ -n "$ORG_GRADLE_PROJECT_signingInMemoryKey" ]] && echo "✅" || echo "❌")"
-          echo ""
-          echo "Testing Gradle can see the properties:"
-          ./gradlew properties | grep signingInMemoryKey || echo "❌ signingInMemoryKey not found"
-
       - name: Check out code
         uses: actions/checkout@v4
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v3
@@ -93,11 +84,25 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Debug Signing Setup
+        run: |
+          echo "Environment variables:"
+          echo "Username set: $([[ -n "$ORG_GRADLE_PROJECT_mavenCentralUsername" ]] && echo "✅" || echo "❌")"
+          echo "Password set: $([[ -n "$ORG_GRADLE_PROJECT_mavenCentralPassword" ]] && echo "✅" || echo "❌")"
+          echo "Key ID set: $([[ -n "$ORG_GRADLE_PROJECT_signingInMemoryKeyId" ]] && echo "✅" || echo "❌")"
+          echo "Key Password set: $([[ -n "$ORG_GRADLE_PROJECT_signingInMemoryKeyPassword" ]] && echo "✅" || echo "❌")"
+          echo "GPG Key set: $([[ -n "$ORG_GRADLE_PROJECT_signingInMemoryKey" ]] && echo "✅" || echo "❌")"
+          echo ""
+          echo "Testing Gradle can see the properties:"
+          ./gradlew properties | grep signingInMemoryKey || echo "❌ signingInMemoryKey not found"
+          ./gradlew properties | grep signingInMemoryKeyId || echo "❌ signingInMemoryKeyId not found"
+          ./gradlew properties | grep signingInMemoryKeyPassword || echo "❌ signingInMemoryKeyPassword not found"
+
       - name: Publish Core Module to Maven Central
-        run: ./gradlew :decimal-formatter-core:publishToMavenCentral --no-configuration-cache # Publishing releases to Maven Central is not supported yet with configuration caching enabled, because of this missing Gradle feature: https://github.com/gradle/gradle/issues/22779
+        run: ./gradlew :decimal-formatter-core:publishToMavenCentral --no-configuration-cache -PsigningInMemoryKeyId="${ORG_GRADLE_PROJECT_signingInMemoryKeyId}" -PsigningInMemoryKey="${ORG_GRADLE_PROJECT_signingInMemoryKey}" -PsigningInMemoryKeyPassword="${ORG_GRADLE_PROJECT_signingInMemoryKeyPassword}" -PmavenCentralUsername="${ORG_GRADLE_PROJECT_mavenCentralUsername}" -PmavenCentralPassword="${ORG_GRADLE_PROJECT_mavenCentralPassword}"
 
       - name: Publish Compose Module to Maven Central
-        run: ./gradlew :decimal-formatter-compose:publishToMavenCentral --no-configuration-cache # Publishing releases to Maven Central is not supported yet with configuration caching enabled, because of this missing Gradle feature: https://github.com/gradle/gradle/issues/22779
+        run: ./gradlew :decimal-formatter-compose:publishToMavenCentral --no-configuration-cache -PsigningInMemoryKeyId="${ORG_GRADLE_PROJECT_signingInMemoryKeyId}" -PsigningInMemoryKey="${ORG_GRADLE_PROJECT_signingInMemoryKey}" -PsigningInMemoryKeyPassword="${ORG_GRADLE_PROJECT_signingInMemoryKeyPassword}" -PmavenCentralUsername="${ORG_GRADLE_PROJECT_mavenCentralUsername}" -PmavenCentralPassword="${ORG_GRADLE_PROJECT_mavenCentralPassword}"
 
       - name: Verify Publications
         run: |
