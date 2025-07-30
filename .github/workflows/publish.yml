@@ -82,10 +82,10 @@ jobs:
           java-version: '17'
 
       - name: Publish Core Module to Maven Central
-        run: ./gradlew :decimal-formatter-core:publishToMavenCentral
+        run: ./gradlew :decimal-formatter-core:publishToMavenCentral --no-configuration-cache # Publishing releases to Maven Central is not supported yet with configuration caching enabled, because of this missing Gradle feature: https://github.com/gradle/gradle/issues/22779
 
       - name: Publish Compose Module to Maven Central
-        run: ./gradlew :decimal-formatter-compose:publishToMavenCentral
+        run: ./gradlew :decimal-formatter-compose:publishToMavenCentral --no-configuration-cache # Publishing releases to Maven Central is not supported yet with configuration caching enabled, because of this missing Gradle feature: https://github.com/gradle/gradle/issues/22779
 
       - name: Verify Publications
         run: |
