@@ -60,6 +60,18 @@ jobs:
       ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
 
     steps:
+      - name: Debug Signing Setup
+        run: |
+          echo "Environment variables:"
+          echo "Username set: $([[ -n "$ORG_GRADLE_PROJECT_mavenCentralUsername" ]] && echo "✅" || echo "❌")"
+          echo "Password set: $([[ -n "$ORG_GRADLE_PROJECT_mavenCentralPassword" ]] && echo "✅" || echo "❌")"
+          echo "Key ID set: $([[ -n "$ORG_GRADLE_PROJECT_signingInMemoryKeyId" ]] && echo "✅" || echo "❌")"
+          echo "Key Password set: $([[ -n "$ORG_GRADLE_PROJECT_signingInMemoryKeyPassword" ]] && echo "✅" || echo "❌")"
+          echo "GPG Key set: $([[ -n "$ORG_GRADLE_PROJECT_signingInMemoryKey" ]] && echo "✅" || echo "❌")"
+          echo ""
+          echo "Testing Gradle can see the properties:"
+          ./gradlew properties | grep signingInMemoryKey || echo "❌ signingInMemoryKey not found"
+
       - name: Check out code
         uses: actions/checkout@v4
 
