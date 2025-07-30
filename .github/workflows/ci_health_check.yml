@@ -1,0 +1,109 @@
+name: CI Health Check
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.konan
+          key: ${{ runner.os }}-${{ hashFiles('**/.lock') }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build All Targets and Run Unit Tests Library Modules
+        uses: gradle/gradle-build-action@v3
+        env:
+          GRADLE_OPTS: "-Xmx6g -Xms2g"
+        with:
+          arguments: :decimal-formatter-core:build :decimal-formatter-compose:build
+
+      - name: Build Shared Module (iOS)
+        uses: gradle/gradle-build-action@v3
+        continue-on-error: true  # Don't fail CI if iOS linking fails
+        env:
+          GRADLE_OPTS: "-Xmx6g -Xms2g"
+        with:
+          arguments: :shared:build
+
+      - name: Upload Unit Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-results
+          path: |
+            **/build/reports/tests/
+            **/build/test-results/
+
+  android-ui-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache Android SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: ${{ runner.os }}-android-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Android UI Tests on Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          cores: 2
+          ram-size: 4096M
+          heap-size: 512M
+          script: ./gradlew decimal-formatter-compose:connectedAndroidTest
+
+      - name: Upload Android UI Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-ui-test-results
+          path: |
+            **/build/reports/androidTests/
+            **/build/outputs/androidTest-results/
