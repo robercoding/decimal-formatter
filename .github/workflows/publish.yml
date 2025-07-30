@@ -1,28 +1,102 @@
-# .github/workflows/publish.yml
+name: Publish to Maven Central
 
-name: Publish
 on:
   release:
     types: [released, prereleased]
+
+permissions:
+  contents: read
+
 jobs:
-  publish:
-    name: Release build and publish
-    runs-on: macOS-latest
+  # First: Run validation steps to ensure everything works
+  validate:
+    name: Pre-publish Validation
+    runs-on: ubuntu-latest
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-      - name: Set up JDK 21
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Cache Gradle and Konan
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.konan
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-validate-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: 21
-      - name: Publish to MavenCentral
-        run: ./gradlew decimal-formatter-core:publishToMavenCentral --no-configuration-cache
-      - name: Publish to MavenCentral
-        run: ./gradlew decimal-formatter-compose:publishToMavenCentral --no-configuration-cache
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Run Full Build and Tests
+        run: ./gradlew build
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: pre-publish-test-results
+          path: |
+            **/build/reports/tests/
+            **/build/test-results/
+
+  publish:
+    name: Publish to Maven Central
+    runs-on: macOS-latest
+    needs: validate
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Cache Gradle and Konan
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.konan
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-publish-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Verify project builds successfully
+        run: ./gradlew build --no-configuration-cache
+
+      - name: Publish Core Module to Maven Central
+        run: ./gradlew :decimal-formatter-core:publishToMavenCentral --no-configuration-cache
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
+
+      - name: Publish Compose Module to Maven Central
+        run: ./gradlew :decimal-formatter-compose:publishToMavenCentral --no-configuration-cache
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
+
+      - name: Verify Publications
+        run: |
+          echo "✅ Core module published successfully"
+          echo "✅ Compose module published successfully"
+          echo "🎉 Release ${{ github.event.release.tag_name }} published to Maven Central!"

@@ -33,16 +33,12 @@ jobs:
 
       - name: Build All Targets and Run Unit Tests Library Modules
         uses: gradle/gradle-build-action@v3
-        env:
-          GRADLE_OPTS: "-Xmx6g -Xms2g"
         with:
           arguments: :decimal-formatter-core:build :decimal-formatter-compose:build
 
       - name: Build Shared Module (iOS)
         uses: gradle/gradle-build-action@v3
         continue-on-error: true  # Don't fail CI if iOS linking fails
-        env:
-          GRADLE_OPTS: "-Xmx6g -Xms2g"
         with:
           arguments: :shared:build
 
