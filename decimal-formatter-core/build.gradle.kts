@@ -6,9 +6,6 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
-ext["POM_ARTIFACT_ID"] = "decimal-formatter-core"
-ext["POM_NAME"] = "Decimal Formatter Core"
-ext["POM_DESCRIPTION"] = "Core decimal formatting logic for Kotlin Multiplatform projects. Provides DecimalFormatter for formatting numbers with configurable decimal and thousand separators."
 
 kotlin {
     androidTarget {
@@ -48,6 +45,11 @@ android {
 }
 
 mavenPublishing {
+    pom {
+        // artifact id is set automatically to the project name, in this case "decimal-formatter-core"
+        name.set("Decimal Formatter Core")
+        description.set("Core decimal formatting logic for Kotlin Multiplatform projects. Provides DecimalFormatter for formatting numbers with configurable decimal and thousand separators.")
+    }
     publishToMavenCentral()
     signAllPublications()
 }

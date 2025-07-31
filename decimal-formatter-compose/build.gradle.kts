@@ -10,10 +10,6 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
-ext["POM_ARTIFACT_ID"] = "decimal-formatter-compose"
-ext["POM_NAME"] = "Decimal Formatter Compose"
-ext["POM_DESCRIPTION"] = "Jetpack Compose UI components for decimal number input with automatic formatting. Includes OutlinedDecimalTextField, BasicDecimalTextField, and DecimalText."
-
 kotlin {
     androidTarget {
         publishLibraryVariants("release")
@@ -69,6 +65,11 @@ android {
 }
 
 mavenPublishing {
+    pom {
+        // artifact id is set automatically to the project name, in this case "decimal-formatter-compose"
+        name.set("Decimal Formatter Compose")
+        description.set("Jetpack Compose UI components for decimal number input with automatic formatting. Includes OutlinedDecimalTextField, BasicDecimalTextField, and DecimalText.")
+    }
     publishToMavenCentral()
     signAllPublications()
 }
