@@ -1,7 +1,7 @@
-package dev.robercoding.decimal.formatter.utils
+package dev.robercoding.decimal.formatter.core.utils
 
 import co.touchlab.kermit.Logger
-import dev.robercoding.decimal.formatter.DecimalFormatterDebugConfig
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterDebugConfig
 
 fun logMessage(message: String) {
     if (!DecimalFormatterDebugConfig.isDebugEnabled) return

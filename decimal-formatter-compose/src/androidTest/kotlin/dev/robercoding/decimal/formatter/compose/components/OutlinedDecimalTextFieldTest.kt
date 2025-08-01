@@ -16,8 +16,8 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.runComposeUiTest
 import dev.robercoding.decimal.formatter.compose.formatter.UiDecimalFormatter
-import dev.robercoding.decimal.formatter.core.DecimalFormatter
-import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatter
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfiguration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

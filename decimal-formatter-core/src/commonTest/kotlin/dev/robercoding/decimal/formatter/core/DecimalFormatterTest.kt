@@ -1,8 +1,10 @@
 package dev.robercoding.decimal.formatter.core
 
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatter
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfiguration
 import kotlin.test.*
-import dev.robercoding.decimal.formatter.model.ThousandSeparator
-import dev.robercoding.decimal.formatter.model.DecimalSeparator
+import dev.robercoding.decimal.formatter.core.model.ThousandSeparator
+import dev.robercoding.decimal.formatter.core.model.DecimalSeparator
 
 class DecimalFormatterTest {
 

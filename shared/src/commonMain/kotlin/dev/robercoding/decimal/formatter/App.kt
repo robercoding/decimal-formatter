@@ -24,8 +24,8 @@ import dev.robercoding.decimal.formatter.compose.components.OutlinedDecimalTextF
 import dev.robercoding.decimal.formatter.compose.formatter.UiDecimalFormatter
 import dev.robercoding.decimal.formatter.compose.formatter.rememberUiDecimalFormatter
 import dev.robercoding.decimal.formatter.compose.model.DecimalValue
-import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
-import dev.robercoding.decimal.formatter.utils.logMessage
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfiguration
+import dev.robercoding.decimal.formatter.core.utils.logMessage
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 @OptIn(ExperimentalResourceApi::class)

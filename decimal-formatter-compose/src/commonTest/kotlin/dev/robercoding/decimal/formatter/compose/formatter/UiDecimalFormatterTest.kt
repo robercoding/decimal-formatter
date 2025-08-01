@@ -1,7 +1,7 @@
 package dev.robercoding.decimal.formatter.compose.formatter
 
-import dev.robercoding.decimal.formatter.core.DecimalFormatter
-import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatter
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfiguration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

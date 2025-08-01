@@ -1,7 +1,6 @@
 package dev.robercoding.decimal.formatter.compose.transformation.default
 
 import androidx.compose.ui.text.input.OffsetMapping
-import dev.robercoding.decimal.formatter.utils.logMessage
 
 /**
  * Offset mapping to keep cursor position consistent during decimal formatting transformations.

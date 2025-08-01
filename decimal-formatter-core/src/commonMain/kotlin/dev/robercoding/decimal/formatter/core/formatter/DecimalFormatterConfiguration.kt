@@ -1,8 +1,8 @@
-package dev.robercoding.decimal.formatter.core
+package dev.robercoding.decimal.formatter.core.formatter
 
-import dev.robercoding.decimal.formatter.model.DecimalSeparator
-import dev.robercoding.decimal.formatter.model.ThousandSeparator
-import dev.robercoding.decimal.formatter.utils.logMessage
+import dev.robercoding.decimal.formatter.core.model.DecimalSeparator
+import dev.robercoding.decimal.formatter.core.model.ThousandSeparator
+import dev.robercoding.decimal.formatter.core.utils.logMessage
 
 /**
  * Configuration for decimal number formatting.

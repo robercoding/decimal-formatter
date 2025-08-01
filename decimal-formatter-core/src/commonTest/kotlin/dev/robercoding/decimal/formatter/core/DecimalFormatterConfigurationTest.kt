@@ -1,7 +1,8 @@
 package dev.robercoding.decimal.formatter.core
 
-import dev.robercoding.decimal.formatter.model.DecimalSeparator
-import dev.robercoding.decimal.formatter.model.ThousandSeparator
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfiguration
+import dev.robercoding.decimal.formatter.core.model.DecimalSeparator
+import dev.robercoding.decimal.formatter.core.model.ThousandSeparator
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

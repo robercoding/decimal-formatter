@@ -46,10 +46,7 @@ dependencies {
 val formatter = DecimalFormatter(DecimalFormatterConfiguration.european())  
   
 // Format numbers  
-val formatted = formatter.format("123456") // "1.234,56"  
-  
-// Extract raw digits from any input
-val rawDigits = formatter.getRawDigits("€1.234,56") // "123456"
+val formatted = formatter.format("123456") // "1.234,56"
 ```  
 
 ### Compose UI Components
@@ -163,9 +160,9 @@ data class DecimalValue internal constructor(
     val fullDisplay: String?    // "€1.234,56" - formatted with prefix. Nullable if you didn't provide a prefix
 )
 
-// Note: You can only create `DecimalValue` using `UiDecimalFormatter.format()` or `DecimalFormatter.format()` method.
+// Note: You can only create `DecimalValue` using `UiDecimalFormatter.format()`
 // Usage examples
-val value = decimalFormatter.format("123456")
+val value = uiDecimalFormatter.format("123456")
 println(value.rawDigits)    // "123456"
 println(value.display)      // "1.234,56" -> Can vary depending on the type of formatter used
 println(value.fullDisplay)  // "€1.234,56" -> Can vary depending on the type of formatter used.
@@ -205,49 +202,12 @@ DecimalFormatterConfiguration(
 )  
 ```
 
-## 🔧 Advanced Usage
-
-### Type Conversions
-```kotlin
-val formatter = UiDecimalFormatter(
-    DecimalFormatter(DecimalFormatterConfiguration.us()),
-    prefix = "$"
-)
-
-// All numeric types supported
-formatter.format("123456")  // String input
-formatter.format(123456)    // Int input  
-formatter.format(123456L)   // Long input
-formatter.format(1234.56f)  // Float input
-formatter.format(1234.56)   // Double input
-```
-
 ### Input Validation & Cleaning
 ```kotlin
 // The formatter automatically handles invalid input
 formatter.format("abc123def")  // Filters the letters
 formatter.format("$1,234.56")  // Extracts digits → "123456" → "1,234.56"
 formatter.format("000123")     // Removes leading zeros → "123" → "1.23"
-```
-
-## 🧪 Testing
-
-The library includes comprehensive test coverage for both unit and compose testing:
-
-```kotlin
-@Test
-fun formatterHandlesEuropeanFormatCorrectly() {
-    val formatter = UiDecimalFormatter(
-        DecimalFormatter(DecimalFormatterConfiguration.european()),
-        prefix = "€"
-    )
-    
-    val result = formatter.format("123456")
-    
-    assertEquals("123456", result.rawDigits)
-    assertEquals("1.234,56", result.display)  
-    assertEquals("€1.234,56", result.fullDisplay)
-}
 ```
 
 ## 🐛 Debug Logging
@@ -272,14 +232,24 @@ This library is split into two modules:
 
 ```  
 decimal-formatter/  
-├── core/                         # Platform-agnostic formatting  
-│   ├── DecimalFormatter         # Core formatting logic
-│   └── DecimalFormatterConfiguration # Formatting rules
+└── core/                         # Platform-agnostic formatting  
+    └── formatter/
+        ├── DecimalFormatter         # Core formatting logic
+        ├── DecimalFormatterConfiguration # Formatting rules
+        └── DecimalFormatterDebugConfig # Debug logging configuration
+    └── model/
+        ├── ThousandSeparator       # Enum for thousand separators
+        └── DecimalSeparator         # Enum for decimal separators
+    └── utils/
+        └── LoggerUtils              # Utility for logging
 └── compose/                     # Compose UI components  
-    ├── DecimalTextField # Basic text field without any decorations
-    ├── OutlinedDecimalTextField # Material text field
-    ├── UiDecimalFormatter      # UI-layer formatter
-    └── DecimalValue           # Structured value object
+    └── components/
+        ├──DecimalTextField # Basic text field without any decorations
+        └── OutlinedDecimalTextField # Material text field
+    └── model/
+        └── DecimalValue
+    └── formatter/
+        └── UiDecimalFormatter      # UI-layer formatter with prefix support
 ```
 
 ## 🤝 Contributing

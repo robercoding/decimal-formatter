@@ -1,7 +1,7 @@
-package dev.robercoding.decimal.formatter.core
+package dev.robercoding.decimal.formatter.core.formatter
 
-import dev.robercoding.decimal.formatter.model.ThousandSeparator
-import dev.robercoding.decimal.formatter.utils.logMessage
+import dev.robercoding.decimal.formatter.core.model.ThousandSeparator
+import dev.robercoding.decimal.formatter.core.utils.logMessage
 
 /**
  * A formatter for decimal numbers with configurable separators and decimal places.

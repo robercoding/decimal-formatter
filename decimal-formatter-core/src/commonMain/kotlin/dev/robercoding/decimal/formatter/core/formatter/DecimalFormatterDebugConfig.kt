@@ -1,4 +1,4 @@
-package dev.robercoding.decimal.formatter
+package dev.robercoding.decimal.formatter.core.formatter
 
 import kotlin.concurrent.Volatile
 

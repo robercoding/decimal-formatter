@@ -17,7 +17,7 @@ import dev.robercoding.decimal.formatter.compose.formatter.UiDecimalFormatter
 import dev.robercoding.decimal.formatter.compose.formatter.rememberUiDecimalFormatter
 import dev.robercoding.decimal.formatter.compose.model.DecimalValue
 import dev.robercoding.decimal.formatter.compose.transformation.default.DecimalVisualTransformation
-import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfiguration
 
 /**
  * A text field component for decimal number input with automatic formatting.

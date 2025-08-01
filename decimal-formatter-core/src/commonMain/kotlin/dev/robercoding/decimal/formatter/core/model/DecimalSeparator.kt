@@ -1,4 +1,4 @@
-package dev.robercoding.decimal.formatter.model
+package dev.robercoding.decimal.formatter.core.model
 
 /**
  * Enum representing the decimal separator options.

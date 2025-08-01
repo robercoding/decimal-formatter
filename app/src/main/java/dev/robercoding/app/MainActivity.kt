@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import dev.robercoding.app.ui.theme.DecimalFormatterTheme
 import dev.robercoding.decimal.formatter.App
-import dev.robercoding.decimal.formatter.DecimalFormatterDebugConfig
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterDebugConfig
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

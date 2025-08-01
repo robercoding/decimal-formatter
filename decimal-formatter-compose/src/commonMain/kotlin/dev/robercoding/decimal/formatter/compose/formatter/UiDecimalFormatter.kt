@@ -1,8 +1,7 @@
 package dev.robercoding.decimal.formatter.compose.formatter
 
 import dev.robercoding.decimal.formatter.compose.model.DecimalValue
-import dev.robercoding.decimal.formatter.core.DecimalFormatter
-import dev.robercoding.decimal.formatter.core.DecimalFormatterConfiguration
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatter
 
 data class UiDecimalFormatter(
     private val decimalFormatter: DecimalFormatter = DecimalFormatter.DefaultFormatter,
