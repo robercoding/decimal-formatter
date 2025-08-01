@@ -244,7 +244,7 @@ decimal-formatter/
         └── LoggerUtils              # Utility for logging
 └── compose/                     # Compose UI components  
     └── components/
-        ├──DecimalTextField # Basic text field without any decorations
+        ├── DecimalTextField # Basic text field without any decorations
         └── OutlinedDecimalTextField # Material text field
     └── model/
         └── DecimalValue
