@@ -694,8 +694,8 @@ class DecimalFormatterTest {
 
     @Test
     fun `parseableValue consistency with prefix suffix across all scenarios`() {
-        val testInput = "123456"
-        val expectedParseableValue = "1234.56"
+        val testInput = "12345"
+        val expectedParseableValue = "123.45"
 
         val testConfigs = listOf(
             DecimalFormatterConfiguration.us(),
