@@ -22,6 +22,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.touchlab.kermit)
+                implementation(libs.ionspin.kotlin.bignum)
             }
         }
         val commonTest by getting {

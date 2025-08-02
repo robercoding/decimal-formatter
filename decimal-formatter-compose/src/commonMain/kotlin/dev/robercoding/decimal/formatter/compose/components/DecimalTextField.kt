@@ -13,11 +13,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import dev.robercoding.decimal.formatter.compose.formatter.UiDecimalFormatter
-import dev.robercoding.decimal.formatter.compose.formatter.rememberUiDecimalFormatter
-import dev.robercoding.decimal.formatter.compose.model.DecimalValue
+import dev.robercoding.decimal.formatter.compose.formatter.rememberDecimalFormatter
 import dev.robercoding.decimal.formatter.compose.transformation.default.DecimalVisualTransformation
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatter
 import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfiguration
+import dev.robercoding.decimal.formatter.core.model.FormattedDecimal
 
 /**
  * A text field component for decimal number input with automatic formatting.
@@ -29,7 +29,7 @@ import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfigur
  * @param value The current formatted value (e.g., "1.234,56")
  * @param onValueChange Called when the value changes with the new formatted value
  * @param modifier Modifier to be applied to the text field
- * @param configuration Configuration for decimal and thousand separators, decimal places, etc.
+ * @param decimalFormatter Formatter for decimal and thousand separators, decimal places, etc.
  * @param prefix Optional prefix to show before the number (e.g., "€ ")
  * @param enabled Controls the enabled state of the text field
  * @param readOnly Controls whether the text field is read-only
@@ -45,9 +45,9 @@ import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfigur
  */
 @Composable
 fun DecimalTextField(
-    value: DecimalValue,
-    onValueChange: (DecimalValue) -> Unit,
-    decimalFormatter: UiDecimalFormatter = rememberUiDecimalFormatter(DecimalFormatterConfiguration.DefaultConfiguration),
+    value: FormattedDecimal,
+    onValueChange: (FormattedDecimal) -> Unit,
+    decimalFormatter: DecimalFormatter = rememberDecimalFormatter(DecimalFormatterConfiguration.DefaultConfiguration),
     modifier: Modifier = Modifier,
     prefix: String? = null,
     enabled: Boolean = true,
@@ -77,7 +77,7 @@ fun DecimalTextField(
         singleLine = singleLine,
         maxLines = maxLines,
         minLines = minLines,
-        visualTransformation = DecimalVisualTransformation(decimalValue = value),
+        visualTransformation = DecimalVisualTransformation(formattedDecimal = value),
         interactionSource = interactionSource,
         cursorBrush = cursorBrush,
         decorationBox = decorationBox

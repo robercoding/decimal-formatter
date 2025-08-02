@@ -13,11 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import dev.robercoding.decimal.formatter.compose.formatter.UiDecimalFormatter
-import dev.robercoding.decimal.formatter.compose.formatter.rememberUiDecimalFormatter
-import dev.robercoding.decimal.formatter.compose.model.DecimalValue
+import dev.robercoding.decimal.formatter.compose.formatter.rememberDecimalFormatter
 import dev.robercoding.decimal.formatter.compose.transformation.default.DecimalVisualTransformation
+import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatter
 import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfiguration
+import dev.robercoding.decimal.formatter.core.model.FormattedDecimal
+import dev.robercoding.decimal.formatter.core.utils.logMessage
 
 /**
  * A text field component for decimal number input with automatic formatting.
@@ -29,7 +30,7 @@ import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfigur
  * @param value The current formatted value (e.g., "1.234,56")
  * @param onValueChange Called when the value changes with the new formatted value
  * @param modifier Modifier to be applied to the text field
- * @param configuration Configuration for decimal and thousand separators, decimal places, etc.
+ * @param decimalFormatter Formatter for decimal and thousand separators, decimal places, etc.
  * @param enabled Controls the enabled state of the text field
  * @param readOnly Controls whether the text field is read-only
  * @param textStyle The style to be applied to the input text
@@ -49,10 +50,10 @@ import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfigur
  */
 @Composable
 fun OutlinedDecimalTextField(
-    decimalValue: DecimalValue, // User manages the full state
-    onValueChange: (DecimalValue) -> Unit,
+    value: FormattedDecimal, // User manages the full state
+    onValueChange: (FormattedDecimal) -> Unit,
     modifier: Modifier = Modifier,
-    decimalFormatter: UiDecimalFormatter = rememberUiDecimalFormatter(DecimalFormatterConfiguration.DefaultConfiguration),
+    decimalFormatter: DecimalFormatter = rememberDecimalFormatter(DecimalFormatterConfiguration.DefaultConfiguration),
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
@@ -71,8 +72,9 @@ fun OutlinedDecimalTextField(
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
 
+    logMessage("Received formattedDecimal: ${value.rawDigits}")
     OutlinedTextField(
-        value = decimalValue.rawDigits,
+        value = value.rawDigits,
         onValueChange = {
             val decimalValue = decimalFormatter.format(it)
             onValueChange(decimalValue)
@@ -87,7 +89,7 @@ fun OutlinedDecimalTextField(
         trailingIcon = trailingIcon,
         supportingText = supportingText,
         isError = isError,
-        visualTransformation = DecimalVisualTransformation(decimalValue = decimalValue),
+        visualTransformation = DecimalVisualTransformation(formattedDecimal = value),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         singleLine = singleLine,

@@ -64,6 +64,8 @@ kotlin {
                 implementation(compose.components.resources)
                 implementation(compose.material3)
                 implementation(libs.foundation)
+                // implementation(libs.androidx.viewmodel.compose)
+                implementation(libs.ionspin.kotlin.bignum)
             }
         }
 
@@ -76,6 +78,8 @@ kotlin {
         androidMain {
             dependencies {
                 // Empty
+                implementation(libs.androidx.lifecycle.viewmodel.compose)
+                implementation(libs.androidx.lifecycle.viewmodel)
             }
         }
 
