@@ -2,7 +2,7 @@ package dev.robercoding.decimal.formatter.core.model
 
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
-import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatter
+import dev.robercoding.decimal.formatter.core.utils.logMessage
 
 /**
  * Result of formatting a decimal number, containing both display and parseable formats.
@@ -69,6 +69,6 @@ data class FormattedDecimal internal constructor(val displayValue: String, val p
     override fun toString(): String = displayValue
 
     private fun logError(message: String?) {
-        logError("Error converting '$parseableValue' to BigDecimal: ${message}")
+        logMessage("Error converting '$parseableValue' to BigDecimal: ${message}")
     }
 }

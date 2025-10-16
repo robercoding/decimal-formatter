@@ -18,7 +18,6 @@ import dev.robercoding.decimal.formatter.compose.transformation.default.DecimalV
 import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatter
 import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfiguration
 import dev.robercoding.decimal.formatter.core.model.FormattedDecimal
-import dev.robercoding.decimal.formatter.core.utils.logMessage
 
 /**
  * A text field component for decimal number input with automatic formatting.
@@ -71,8 +70,6 @@ fun OutlinedDecimalTextField(
     shape: Shape = OutlinedTextFieldDefaults.shape,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
-
-    logMessage("Received formattedDecimal: ${value.rawDigits}")
     OutlinedTextField(
         value = value.rawDigits,
         onValueChange = {
