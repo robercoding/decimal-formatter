@@ -19,6 +19,7 @@ Perfect for financial apps, calculators, and any application that needs professi
 - 🧩 **Modular Design** - Use core logic only or with UI components
 - 🔧 **Highly Configurable** - Decimal places, separators, max digits
 - 📊 **Structured Data** - Get raw digits, formatted display, and full formatted display
+- 🎚️ **Two Input Modes** - FRACTIONAL (cents mode) or FIXED_DECIMALS (dollar mode) with zero-padding
 
 ## 📦 Installation
 
@@ -135,11 +136,12 @@ fun DynamicFormatterExample() {
 
 ### Core Module Components
 
-| Component | Description |  
-|-----------|-------------|  
-| `DecimalFormatter` | Core formatting logic |  
-| `DecimalFormatterConfiguration` | Formatting configuration |  
-| `DecimalSeparator` / `ThousandSeparator` | Separator enums |  
+| Component | Description |
+|-----------|-------------|
+| `DecimalFormatter` | Core formatting logic |
+| `DecimalFormatterConfiguration` | Formatting configuration |
+| `DecimalSeparator` / `ThousandSeparator` | Separator enums |
+| `DecimalInputMode` | Input mode enum (FRACTIONAL or FIXED_DECIMALS) |  
 
 ### Compose Module Components
 
@@ -210,6 +212,81 @@ formatter.format("$1,234.56")  // Extracts digits → "123456" → "1,234.56"
 formatter.format("000123")     // Removes leading zeros → "123" → "1.23"
 ```
 
+## 🎚️ Input Modes
+
+Choose between two input interpretation modes:
+
+### FRACTIONAL Mode (Default - "Cents Mode")
+
+Traditional behavior where digits fill decimal places from the right. Perfect for cash registers and financial apps.
+
+```kotlin
+val formatter = DecimalFormatter(
+    DecimalFormatterConfiguration.us(
+        decimalPlaces = 2,
+        inputMode = DecimalInputMode.FRACTIONAL  // Default
+    )
+)
+
+formatter.format("1")       // "0.01" (1 cent)
+formatter.format("123")     // "1.23" ($1.23)
+formatter.format("123456")  // "1,234.56"
+```
+
+### FIXED_DECIMALS Mode ("Dollar Mode")
+
+Treats input as whole numbers and pads decimals with zeros. Also accepts formatted input with decimal separators. Ideal for measurements, weights, and scientific notation.
+
+```kotlin
+val formatter = DecimalFormatter(
+    DecimalFormatterConfiguration.us(
+        decimalPlaces = 3,
+        inputMode = DecimalInputMode.FIXED_DECIMALS
+    )
+)
+
+// Raw digits (no decimal separator)
+formatter.format("1")       // "1.000" (1 unit)
+formatter.format("14")      // "14.000" (14 units)
+
+// Formatted input (with decimal separator)
+formatter.format("1.45")    // "1.450" (pads with zeros)
+formatter.format("14.50")   // "14.500"
+formatter.format("1,5")     // "1.500" (accepts comma separator)
+```
+
+**Key Differences:**
+
+| Feature | FRACTIONAL | FIXED_DECIMALS |
+|---------|------------|----------------|
+| Input "1" with 2 decimals | "0.01" | "1.00" |
+| Input "123" with 2 decimals | "1.23" | "123.00" |
+| Accepts decimal separators | ❌ (digits only) | ✅ (. and ,) |
+| Trailing zeros | ❌ | ✅ Padded |
+| Use case | Currency input | Measurements, weights, scientific |
+
+**Example Use Cases:**
+
+```kotlin
+// Weight input with FIXED_DECIMALS
+val weightFormatter = DecimalFormatter(
+    DecimalFormatterConfiguration.plain(
+        decimalPlaces = 2,
+        suffix = " kg",
+        inputMode = DecimalInputMode.FIXED_DECIMALS
+    )
+)
+weightFormatter.format("75.5")  // "75.50 kg"
+
+// Price input with FRACTIONAL (traditional)
+val priceFormatter = DecimalFormatter(
+    DecimalFormatterConfiguration.usd(
+        inputMode = DecimalInputMode.FRACTIONAL
+    )
+)
+priceFormatter.format("1995")  // "$19.95"
+```
+
 ## 🐛 Debug Logging
 
 Enable debug logging to troubleshoot formatting issues:
@@ -230,19 +307,21 @@ This library is split into two modules:
 - **`decimal-formatter-core`** - Pure Kotlin logic, works everywhere
 - **`decimal-formatter-compose`** - Jetpack Compose UI components
 
-```  
-decimal-formatter/  
-└── core/                         # Platform-agnostic formatting  
+```
+decimal-formatter/
+└── core/                         # Platform-agnostic formatting
     └── formatter/
         ├── DecimalFormatter         # Core formatting logic
         ├── DecimalFormatterConfiguration # Formatting rules
         └── DecimalFormatterDebugConfig # Debug logging configuration
     └── model/
+        ├── DecimalInputMode        # Input mode enum (FRACTIONAL/FIXED_DECIMALS)
         ├── ThousandSeparator       # Enum for thousand separators
-        └── DecimalSeparator         # Enum for decimal separators
+        ├── DecimalSeparator        # Enum for decimal separators
+        └── FormattedDecimal        # Result object with display/parseable values
     └── utils/
-        └── LoggerUtils              # Utility for logging
-└── compose/                     # Compose UI components  
+        └── LoggerUtils             # Utility for logging
+└── compose/                     # Compose UI components
     └── components/
         ├── DecimalTextField # Basic text field without any decorations
         └── OutlinedDecimalTextField # Material text field
