@@ -1,14 +1,18 @@
 package dev.robercoding.decimal.formatter.core.formatter
 
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
+import dev.robercoding.decimal.formatter.core.model.DecimalInputMode
 import dev.robercoding.decimal.formatter.core.model.FormattedDecimal
 import dev.robercoding.decimal.formatter.core.model.ThousandSeparator
 import dev.robercoding.decimal.formatter.core.utils.logMessage
 
 /**
  * A formatter for decimal numbers with configurable separators and decimal places.
+ *
+ * This class is immutable and thread-safe. Instances can be safely shared across
+ * multiple threads and reused for multiple formatting operations.
  */
-data class DecimalFormatter(private val configuration: DecimalFormatterConfiguration) {
+class DecimalFormatter(private val configuration: DecimalFormatterConfiguration) {
 
     companion object {
         public val DefaultFormatter: DecimalFormatter
@@ -90,6 +94,17 @@ data class DecimalFormatter(private val configuration: DecimalFormatterConfigura
     )
 
     private fun processDigits(cleanedDigits: String): FormattingResult {
+        return when (configuration.inputMode) {
+            DecimalInputMode.FRACTIONAL -> processFractionalMode(cleanedDigits)
+            DecimalInputMode.FIXED_DECIMALS -> processFixedDecimalsMode(cleanedDigits)
+        }
+    }
+
+    /**
+     * Process digits in FRACTIONAL mode (original behavior).
+     * All digits fill decimal places from the right.
+     */
+    private fun processFractionalMode(cleanedDigits: String): FormattingResult {
         if (cleanedDigits.isEmpty()) {
             return FormattingResult(
                 integerPart = "0",
@@ -135,6 +150,79 @@ data class DecimalFormatter(private val configuration: DecimalFormatterConfigura
     }
 
     /**
+     * Process digits in FIXED_DECIMALS mode.
+     * Supports parsing formatted input with decimal separators.
+     * Pads decimal places with zeros.
+     */
+    private fun processFixedDecimalsMode(input: String): FormattingResult {
+        if (input.isEmpty()) {
+            return FormattingResult(
+                integerPart = "0",
+                decimalPart = "0".repeat(configuration.decimalPlaces),
+                isEmpty = true
+            )
+        }
+
+        // Find decimal separator in the input (. or ,)
+        val decimalIndex = input.indexOfFirst { it == '.' || it == ',' }
+
+        if (decimalIndex == -1) {
+            // No decimal separator found - treat as whole number
+            val cleanedInteger = input.filter { it.isDigit() }.trimStart('0').ifEmpty { "0" }
+
+            if (configuration.decimalPlaces == 0) {
+                return FormattingResult(
+                    integerPart = cleanedInteger,
+                    decimalPart = "",
+                    isEmpty = false
+                )
+            }
+
+            return FormattingResult(
+                integerPart = cleanedInteger,
+                decimalPart = "0".repeat(configuration.decimalPlaces),
+                isEmpty = false
+            )
+        }
+
+        // Decimal separator found - parse both parts
+        val integerPart = input.substring(0, decimalIndex).filter { it.isDigit() }
+        val decimalPart = input.substring(decimalIndex + 1).filter { it.isDigit() }
+
+        val cleanedInteger = integerPart.trimStart('0').ifEmpty { "0" }
+
+        if (configuration.decimalPlaces == 0) {
+            // Ignore decimal part if decimalPlaces is 0
+            return FormattingResult(
+                integerPart = cleanedInteger,
+                decimalPart = "",
+                isEmpty = false
+            )
+        }
+
+        // Pad or truncate to configured decimal places
+        val formattedDecimal = when {
+            decimalPart.length < configuration.decimalPlaces -> {
+                // Pad with trailing zeros
+                decimalPart.padEnd(configuration.decimalPlaces, '0')
+            }
+            decimalPart.length > configuration.decimalPlaces -> {
+                // Truncate to configured decimal places
+                decimalPart.take(configuration.decimalPlaces)
+            }
+            else -> {
+                decimalPart
+            }
+        }
+
+        return FormattingResult(
+            integerPart = cleanedInteger,
+            decimalPart = formattedDecimal,
+            isEmpty = false
+        )
+    }
+
+    /**
      * Creates the display value using locale-specific separators with prefix and suffix
      */
     private fun createDisplayValue(result: FormattingResult): String {
@@ -172,9 +260,20 @@ data class DecimalFormatter(private val configuration: DecimalFormatterConfigura
     }
 
     private fun String.sanitizeDigits(): String {
-        return this.filter { it.isDigit() }
-            .trimStart('0')
-            .take(configuration.maxDigits)
+        return when (configuration.inputMode) {
+            DecimalInputMode.FRACTIONAL -> {
+                // Original behavior: only keep digits, trim leading zeros
+                this.filter { it.isDigit() }
+                    .trimStart('0')
+                    .take(configuration.maxDigits)
+            }
+            DecimalInputMode.FIXED_DECIMALS -> {
+                // Keep digits and decimal separators (. and ,)
+                // Don't trim leading zeros before decimal - let processFixedDecimalsMode handle it
+                this.filter { it.isDigit() || it == '.' || it == ',' }
+                    .take(configuration.maxDigits + 1) // +1 to account for decimal separator
+            }
+        }
     }
 
     /**
@@ -198,5 +297,19 @@ data class DecimalFormatter(private val configuration: DecimalFormatterConfigura
         }
 
         return result.toString().reversed()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DecimalFormatter) return false
+        return configuration == other.configuration
+    }
+
+    override fun hashCode(): Int {
+        return configuration.hashCode()
+    }
+
+    override fun toString(): String {
+        return "DecimalFormatter(configuration=$configuration)"
     }
 }

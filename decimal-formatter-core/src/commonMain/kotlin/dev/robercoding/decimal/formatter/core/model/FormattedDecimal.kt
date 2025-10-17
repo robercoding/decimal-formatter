@@ -8,6 +8,7 @@ import dev.robercoding.decimal.formatter.core.utils.logMessage
  * Result of formatting a decimal number, containing both display and parseable formats.
  * * @property displayValue The formatted string for display (e.g., "1.234,56" for European format)
  * * @property parseableValue The canonical string that can be parsed by numeric types (e.g., "1234.56")
+ * * @property rawDigits The original input string containing only digits (e.g., "123456")
  * * Always uses dot as decimal separator and no thousand separators.
  */
 data class FormattedDecimal internal constructor(val displayValue: String, val parseableValue: String, val rawDigits: String) {
