@@ -19,7 +19,7 @@ Perfect for financial apps, calculators, and any application that needs professi
 - 🧩 **Modular Design** - Use core logic only or with UI components
 - 🔧 **Highly Configurable** - Decimal places, separators, max digits
 - 📊 **Structured Data** - Get raw digits, formatted display, and full formatted display
-- 🎚️ **Two Input Modes** - FRACTIONAL (cents mode) or FIXED_DECIMALS (dollar mode) with zero-padding
+- 🎚️ **Two Input Modes** - FRACTIONAL (decimal-first mode) or FIXED_DECIMALS (integer-first mode) with zero-padding
 
 ## 📦 Installation
 
@@ -216,7 +216,7 @@ formatter.format("000123")     // Removes leading zeros → "123" → "1.23"
 
 Choose between two input interpretation modes:
 
-### FRACTIONAL Mode (Default - "Cents Mode")
+### FRACTIONAL Mode (Default - "Decimal-First Mode")
 
 Traditional behavior where digits fill decimal places from the right. Perfect for cash registers and financial apps.
 
@@ -233,7 +233,7 @@ formatter.format("123")     // "1.23" ($1.23)
 formatter.format("123456")  // "1,234.56"
 ```
 
-### FIXED_DECIMALS Mode ("Dollar Mode")
+### FIXED_DECIMALS Mode ("Integer-First Mode")
 
 Treats input as whole numbers and pads decimals with zeros. Also accepts formatted input with decimal separators. Ideal for measurements, weights, and scientific notation.
 
