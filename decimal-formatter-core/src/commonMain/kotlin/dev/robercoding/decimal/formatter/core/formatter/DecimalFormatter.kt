@@ -41,7 +41,14 @@ class DecimalFormatter(private val configuration: DecimalFormatterConfiguration)
         val displayValue = createDisplayValue(formattingResult)
         val parseableValue = createParseableValue(formattingResult)
 
-        return FormattedDecimal(displayValue, parseableValue, cleanedDigits)
+        // In FIXED_DECIMALS mode, rawDigits should preserve the decimal representation with trailing zeros
+        // This ensures that when continuing to type after mode switches, the full precision is maintained
+        val rawDigits = when (configuration.inputMode) {
+            DecimalInputMode.FRACTIONAL -> cleanedDigits
+            DecimalInputMode.FIXED_DECIMALS -> parseableValue
+        }
+
+        return FormattedDecimal(displayValue, parseableValue, rawDigits)
     }
 
     /**

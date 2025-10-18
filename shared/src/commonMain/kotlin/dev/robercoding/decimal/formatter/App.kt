@@ -33,13 +33,21 @@ fun App() {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.padding(horizontal = 32.dp).verticalScroll(rememberScrollState())
         ) {
-            PercentageSection()
-            WeightSection()
+            PercentageSection(
+                inputMode = state.percentageInputMode,
+                onInputModeChange = { newMode -> viewModel.setPercentageInputMode(newMode) }
+            )
+            WeightSection(
+                inputMode = state.weightInputMode,
+                onInputModeChange = { newMode -> viewModel.setWeightInputMode(newMode) }
+            )
             PriceSection(
                 priceEuro = state.priceEuro,
                 priceEuropean = state.priceEuropean,
+                inputMode = state.priceInputMode,
                 onPriceEuroChange = { newPrice -> viewModel.setPriceEuro(newPrice) },
                 onPriceEuropeanChange = { newPrice -> viewModel.setPriceEuropean(newPrice) },
+                onInputModeChange = { newMode -> viewModel.setPriceInputMode(newMode) }
             )
         }
     }

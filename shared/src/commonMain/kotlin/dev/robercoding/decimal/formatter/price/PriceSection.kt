@@ -1,5 +1,6 @@
 package dev.robercoding.decimal.formatter.price
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
@@ -9,27 +10,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import dev.robercoding.decimal.formatter.InputModeSelector
 import dev.robercoding.decimal.formatter.compose.components.DecimalTextField
 import dev.robercoding.decimal.formatter.compose.components.OutlinedDecimalTextField
 import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatter
+import dev.robercoding.decimal.formatter.core.model.DecimalInputMode
 import dev.robercoding.decimal.formatter.core.model.FormattedDecimal
 
 @Composable
 fun PriceSection(
-    priceEuropean: FormattedDecimal?, // VM example
-    priceEuro: FormattedDecimal?, // VM example
+    priceEuropean: FormattedDecimal?,
+    priceEuro: FormattedDecimal?,
+    inputMode: DecimalInputMode,
     onPriceEuroChange: (FormattedDecimal) -> Unit,
     onPriceEuropeanChange: (FormattedDecimal) -> Unit,
+    onInputModeChange: (DecimalInputMode) -> Unit,
 ) {
-    Column {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        InputModeSelector(
+            selectedMode = inputMode,
+            onModeChange = onInputModeChange
+        )
+
         EuSection(
             priceEuro = priceEuro,
             priceEuropean = priceEuropean,
+            inputMode = inputMode,
             onPriceEuroChange = onPriceEuroChange,
             onPriceEuropeanChange = onPriceEuropeanChange,
         )
-        UsSection()
-        SwissSection()
+        UsSection(inputMode = inputMode)
+        SwissSection(inputMode = inputMode)
     }
 }
 

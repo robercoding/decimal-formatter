@@ -1,6 +1,7 @@
 package dev.robercoding.decimal.formatter
 
 import androidx.lifecycle.ViewModel
+import dev.robercoding.decimal.formatter.core.model.DecimalInputMode
 import dev.robercoding.decimal.formatter.core.model.FormattedDecimal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,5 +19,17 @@ class DecimalFormatterViewModel : ViewModel() {
 
     fun setPriceEuropean(price: FormattedDecimal) {
         _uiState.update { it.copy(priceEuropean = price) }
+    }
+
+    fun setPercentageInputMode(inputMode: DecimalInputMode) {
+        _uiState.update { it.copy(percentageInputMode = inputMode) }
+    }
+
+    fun setWeightInputMode(inputMode: DecimalInputMode) {
+        _uiState.update { it.copy(weightInputMode = inputMode) }
+    }
+
+    fun setPriceInputMode(inputMode: DecimalInputMode) {
+        _uiState.update { it.copy(priceInputMode = inputMode) }
     }
 }
