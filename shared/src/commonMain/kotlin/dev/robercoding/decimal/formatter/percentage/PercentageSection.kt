@@ -9,8 +9,6 @@ import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import dev.robercoding.decimal.formatter.HeaderWithTextFields
 import dev.robercoding.decimal.formatter.compose.formatter.rememberDecimalFormatter
 import dev.robercoding.decimal.formatter.core.formatter.DecimalFormatterConfiguration
-import dev.robercoding.decimal.formatter.core.utils.logMessage
-import dev.robercoding.decimal.formatter.price.OutlinedDecimalTextFieldComposable
 
 @Composable
 internal fun PercentageSection() {

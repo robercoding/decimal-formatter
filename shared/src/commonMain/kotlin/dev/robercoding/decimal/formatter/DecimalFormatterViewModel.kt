@@ -1,9 +1,7 @@
 package dev.robercoding.decimal.formatter
 
 import androidx.lifecycle.ViewModel
-import com.ionspin.kotlin.bignum.decimal.BigDecimal
 import dev.robercoding.decimal.formatter.core.model.FormattedDecimal
-import dev.robercoding.decimal.formatter.core.utils.logMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -11,7 +11,7 @@ import dev.robercoding.decimal.formatter.core.utils.logMessage
  * * @property rawDigits The original input string containing only digits (e.g., "123456")
  * * Always uses dot as decimal separator and no thousand separators.
  */
-data class FormattedDecimal internal constructor(val displayValue: String, val parseableValue: String, val rawDigits: String) {
+class FormattedDecimal internal constructor(val displayValue: String, val parseableValue: String, val rawDigits: String) {
 
     /**
      * Converts to BigDecimal. Returns null if conversion fails.
