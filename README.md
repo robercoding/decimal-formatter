@@ -24,18 +24,18 @@ Perfect for financial apps, calculators, and any application that needs professi
 ## 📦 Installation
 
 ### Core Module (Platform Agnostic)
-```kotlin  
-dependencies {  
-    implementation("dev.robercoding:decimal-formatter-core:0.0.1-alpha01")
-}  
-```  
+```kotlin
+dependencies {
+    implementation("dev.robercoding:decimal-formatter-core:0.2.0-alpha02")
+}
+```
 
 ### Compose Module (UI Components)
-```kotlin  
+```kotlin
 dependencies {
-    implementation("dev.robercoding:decimal-formatter-compose:0.0.1-alpha01")
+    implementation("dev.robercoding:decimal-formatter-compose:0.2.0-alpha02")
     // Note: This automatically includes the core module
-}  
+}
 ```  
 
 ## 🚀 Quick Start
@@ -44,8 +44,8 @@ dependencies {
 
 ```kotlin   
 // Create a formatter
-val formatter = DecimalFormatter(DecimalFormatterConfiguration.european())  
-  
+val formatter = DecimalFormatter(DecimalFormatterConfiguration.european())
+
 // Format numbers  
 val formatted = formatter.format("123456") // "1.234,56"
 ```  
@@ -127,7 +127,7 @@ fun DynamicFormatterExample() {
             }
         ) {
             Text("Switch Format")
-        } 
+        }
     }
 }
 ```  
@@ -196,7 +196,7 @@ DecimalFormatterConfiguration.plain()
 Any configuration can be customized using `DecimalFormatterConfiguration`:
 
 ```kotlin  
-DecimalFormatterConfiguration(  
+DecimalFormatterConfiguration(
     decimalSeparator = DecimalSeparator.COMMA,
     thousandSeparator = ThousandSeparator.SPACE,
     decimalPlaces = 3,
@@ -292,8 +292,8 @@ priceFormatter.format("1995")  // "$19.95"
 Enable debug logging to troubleshoot formatting issues:
 
 ```kotlin  
-class MyApplication : Application() {  
-    override fun onCreate() {  
+class MyApplication : Application() {
+    override fun onCreate() {
         super.onCreate()
         DecimalFormatterDebugConfig.setDebugEnabled(true)
     }
@@ -333,7 +333,7 @@ decimal-formatter/
 
 ## 🤝 Contributing
 
-Contributions are welcome! 
+Contributions are welcome!
 
 ## 📄 License
 
